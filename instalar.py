@@ -29,7 +29,8 @@ def verificar_versao_sistema_operacional():
 	:return:
 	"""
     distribuicao_linux = platform.dist()
-    if distribuicao_linux[0] != 'redhat' or float(distribuicao_linux[1]) < 8.3 or float(distribuicao_linux[1]) >= 9.0 or distribuicao_linux[2] != 'Ootpa':
+    if distribuicao_linux[0] != 'redhat' or float(distribuicao_linux[1]) < 8.3 or float(distribuicao_linux[1]) >= 9.0 or \
+            distribuicao_linux[2] != 'Ootpa':
         raise OSError("Versão de sistema operacional incompatível")
 
 
@@ -207,18 +208,27 @@ def instalar_programas_dnf():
 	Instala os programas que utilizam o gerenciador de pacotes dnf
 	:return:
 	"""
-    # Instalando os repositórios e programas externos
+
+    # Adicionando os repositórios
+    print("Adicionando repositórios dos programas e programas externos ao repositório padrão")
     executar_comando_shell(
         [
-            # Driver proprietário da Nvidia
-            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-appstream-rpms",
-            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-baseos-rpms",
-            "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-x86_64-rpms",
-            "sudo dnf --assumeyes config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo",
-            "sudo dnf --assumeyes module install nvidia-driver:latest",
-
-            # RPM Fusion e Fedora epel
+            # Fedora EPEL
             "sudo dnf --assumeyes install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm",
+
+            # Appstream RPMs
+            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-appstream-rpms",
+
+            # BaseOS RPMs
+            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-baseos-rpms",
+
+            # Code Ready Builder
+            "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-x86_64-rpms",
+
+            # Nvidia
+            "sudo dnf --assumeyes config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo",
+
+            # RPM Fusion
             "sudo dnf --assumeyes install https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm",
 
             # Google Chrome
@@ -233,15 +243,14 @@ def instalar_programas_dnf():
         ],
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
+    print("Instalando os programas")
     programas = \
         [
-            "vlc",
-            "youtube-dl.noarch",
-            "snapd",
-            "flatpak",
-            "transmission.x86_64",
-            "ffmpeg",
-            "steam.i686",
+            # Nvidia Driver
+            "cuda",
+
+            # Biblioteca de terceiros para Nvidia
+            "freeglut-devel", "libX11-devel", "libXi-devel", "libXmu-devel", "make mesa-libGLU-devel"
 
             # Libreoffice
             "libreoffice-writer.x86_64",
@@ -271,6 +280,18 @@ def instalar_programas_dnf():
             "dotnet-runtime-5.0",
             "git.x86_64",
             "git-lfs.x86_64",
+
+            # Outros programas
+            "vlc",
+            "youtube-dl.noarch",
+            "snapd",
+            "flatpak",
+            "transmission.x86_64",
+            "ffmpeg",
+            "steam.i686",
+            "wine.x86_64",
+            "VirtualBox.x86_64",
+
         ]
 
     comando = "sudo dnf --assumeyes install"
