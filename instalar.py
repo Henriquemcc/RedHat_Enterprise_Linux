@@ -269,7 +269,7 @@ def instalar_programas_dnf():
             "git-lfs.x86_64",
 
             # Outros programas
-            "stacer",
+            "stacer", "qt5-qtcharts.x86_64",
             "vlc",
             "youtube-dl.noarch",
             "snapd",
