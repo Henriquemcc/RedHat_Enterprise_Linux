@@ -2,6 +2,10 @@ import enum
 import subprocess
 import platform
 
+import requests
+
+arquitetura = platform.processor()
+
 
 class AcaoExecutadaQuandoOcorrerErro(enum.Enum):
     """
@@ -98,6 +102,7 @@ def instalar_programas_snap():
             "sudo snap install pycharm-community --classic",
             "sudo snap install clion --classic",
             "sudo snap install rider --classic",
+            "sudo snap install flutter --classic",
         ],
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
@@ -209,49 +214,27 @@ def instalar_programas_dnf():
 	:return:
 	"""
 
-    # Adicionando os repositórios
-    print("Adicionando repositórios dos programas e programas externos ao repositório padrão")
-    executar_comando_shell(
+    # Habilitando repositórios
+    habilitar_repositorio_code_ready()
+    habilitar_repositorio_baseos_rpms()
+    habilitar_repositorio_appstream_rpms()
+    habilitar_repositorio_fedora_epel()
+    habilitar_repositorio_rpm_fusion()
+
+    # Baixando e instalando programas RPM
+    programas_rpm_baixados_da_internet = \
         [
-            # Fedora EPEL
-            "sudo dnf --assumeyes install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm",
+            "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
+            "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
+            "{}".format(requests.get("https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url),
+        ]
 
-            # Appstream RPMs
-            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-appstream-rpms",
-
-            # BaseOS RPMs
-            "sudo subscription-manager repos --enable=rhel-8-for-x86_64-baseos-rpms",
-
-            # Code Ready Builder
-            "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-x86_64-rpms",
-
-            # Nvidia
-            "sudo dnf --assumeyes config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/x86_64/cuda-rhel8.repo",
-
-            # RPM Fusion
-            "sudo dnf --assumeyes install https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm",
-
-            # Google Chrome
-            "sudo dnf --assumeyes install https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
-
-            # Peazip
-            "sudo dnf --assumeyes install https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
-
-            # Microsoft Teams
-            "curl --output microsoft_teams.rpm --location https://go.microsoft.com/fwlink/p/?LinkID=2112907&culture=en-us&country=WW",
-            "sudo dnf --assumeyes install ./microsoft_teams.rpm",
-        ],
-        AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+    for i in programas_rpm_baixados_da_internet:
+        executar_comando_shell("sudo dnf --assumeyes install {}".format(i))
 
     print("Instalando os programas")
     programas = \
         [
-            # Nvidia Driver
-            "cuda",
-
-            # Biblioteca de terceiros para Nvidia
-            "freeglut-devel", "libX11-devel", "libXi-devel", "libXmu-devel", "make mesa-libGLU-devel"
-
             # Libreoffice
             "libreoffice-writer.x86_64",
             "libreoffice-calc.x86_64",
@@ -260,6 +243,10 @@ def instalar_programas_dnf():
             "libreoffice-draw.x86_64",
             "libreoffice-langpack-pt-BR.x86_64",
             "libreoffice-langpack-en.x86_64",
+            "unoconv.noarch",
+
+            # Impressora HP
+            "hplip.x86_64",
 
             # KVM
             "qemu-kvm",
@@ -282,6 +269,7 @@ def instalar_programas_dnf():
             "git-lfs.x86_64",
 
             # Outros programas
+            "stacer",
             "vlc",
             "youtube-dl.noarch",
             "snapd",
@@ -299,6 +287,81 @@ def instalar_programas_dnf():
         comando += " {}".format(programa)
     executar_comando_shell(comando, AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
+def habilitar_repositorio_appstream_rpms():
+    """
+    Habilita o repositório rhel 8 for appstream
+    """
+    executar_comando_shell("sudo subscription-manager repos --enable=rhel-8-for-{}-appstream-rpms".format(arquitetura),
+                           AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def habilitar_repositorio_baseos_rpms():
+    """
+    Habilita o repositório rhel 8 baseos
+    """
+    executar_comando_shell("sudo subscription-manager repos --enable=rhel-8-for-{}-baseos-rpms".format(arquitetura),
+                           AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def habilitar_repositorio_code_ready():
+    """
+    Habilita o repositório codeready builder for rhel 8
+    """
+    executar_comando_shell(
+        "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-{}-rpms".format(arquitetura),
+        AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def habilitar_repositorio_rpm_fusion():
+    """
+    Habilita repositório RPM Fusion
+    """
+    executar_comando_shell(
+        [
+            "sudo dnf --assumeyes install --nogpgcheck https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm",
+            "sudo dnf --assumeyes install --nogpgcheck https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm"
+        ]
+        , AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+    habilitar_repositorio_code_ready()
+    executar_comando_shell(
+        [
+            "sudo dnf --assumeyes groupupdate core",
+            "sudo dnf --assumeyes groupupdate multimedia --setop=\"install_weak_deps=False\" --exclude=PackageKit-gstreamer-plugin",
+            "sudo dnf --assumeyes groupupdate sound-and-video",
+            "sudo dnf install --assumeyes rpmfusion-free-release-tainted",
+            "sudo dnf install --assumeyes rpmfusion-nonfree-release-tainted"
+        ], AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def instalar_driver_nvidia():
+    """
+    Instala os drivers de vídeo da Nvidia
+    """
+    habilitar_repositorio_appstream_rpms()
+    habilitar_repositorio_baseos_rpms()
+    habilitar_repositorio_code_ready()
+
+    executar_comando_shell(
+        [
+            # "sudo subscription-manager repos --enable=rhel-8-for-{}-appstream-rpms".format(arquitetura),
+            # "sudo subscription-manager repos --enable=rhel-8-for-{}-baseos-rpms".format(arquitetura),
+            # "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-{}-rpms".format(arquitetura),
+            "sudo dnf --assumeyes config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/{}/cuda-rhel8.repo".format(
+                arquitetura),
+            "sudo dnf --assumeyes module install nvidia-driver:latest-dkms"
+        ],
+        AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def habilitar_repositorio_fedora_epel():
+    """
+    Habilita o repositório fedora epel
+    """
+    executar_comando_shell(
+        "sudo dnf --assumeyes install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm",
+        AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+    habilitar_repositorio_code_ready()
+
 
 def instalar_free_file_sync():
     """
@@ -314,13 +377,32 @@ def instalar_free_file_sync():
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
 
+def criar_atalho_para_o_java_jre():
+
+        with open("java.desktop", "w") as atalho:
+            atalho.write("[Desktop Entry]\n")
+            atalho.write("Name=Java Runtime Environment\n")
+            atalho.write("Comment=Java Runtime Environment\n")
+            atalho.write("GenericName=Java\n")
+            atalho.write("Keywords=java\n")
+            atalho.write("Exec=java -jar %f\n")
+            atalho.write("Terminal=false\n")
+            atalho.write("X-MultipleArgs=false\n")
+            atalho.write("Type=Application\n")
+            atalho.write("MimeType=application/x-java-archive\n")
+            atalho.write("StartupNotify=true\n")
+
+        executar_comando_shell("sudo cp ./java.desktop /usr/share/applications/java.desktop", AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+
 def main():
     """
 	Função principal
 	:return:
 	"""
     parte = 0
-    total = 8
+    total = 11
 
     # Verificando a versão do sistema operacional
     parte += 1
@@ -331,6 +413,11 @@ def main():
     parte += 1
     print("(", parte, "/", total, ")", "Atualizando o sistema")
     atualizar()
+
+    # Instalando drivers da Nvidia
+    parte += 1
+    print("(", parte, "/", total, ")", "Instalando o driver da Nvidia")
+    instalar_driver_nvidia()
 
     # Instalando programas pelo pip
     parte += 1
@@ -363,9 +450,19 @@ def main():
     configurar_visual_studio_code()
     instalar_extensoes_visual_studio_code()
 
-    # Free File Sync
-    print("(", parte, "/", total, ")", "Instalando o Free File Sync")
+    # # Definindo variáveis de ambiente
+    # parte += 1
+    # print("(", parte, "/", total, ")", "Definindo variáveis de ambiente")
+    # definir_variaveis_ambiente()
+
+    # Criando atalho do Java
     parte += 1
+    print("(", parte, "/", total, ")", "Criando atalho do Java")
+    criar_atalho_para_o_java_jre()
+
+    # Free File Sync
+    parte += 1
+    print("(", parte, "/", total, ")", "Instalando o Free File Sync")
     instalar_free_file_sync()
 
     # Exibindo mensagem de instalação concluída
