@@ -227,6 +227,7 @@ def instalar_programas_dnf():
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
             "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
             "{}".format(requests.get("https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url),
+            "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
         ]
 
     for i in programas_rpm_baixados_da_internet:
