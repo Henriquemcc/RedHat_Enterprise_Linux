@@ -27,8 +27,9 @@ class AcaoExecutadaQuandoOcorrerErro(enum.Enum):
     IGNORAR = 3
 
 
-def executar_comando_shell(comando_shell, no_erro: AcaoExecutadaQuandoOcorrerErro,
-                           numero_maximo_de_vezes_para_repetir: int = 0):
+def executar_comando_shell(comando_shell,
+                           no_erro: AcaoExecutadaQuandoOcorrerErro = AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR,
+                           numero_maximo_de_vezes_para_repetir: int = 5):
     """
     Executa um comando shell ou uma lista de comandos shell
     :param comando_shell: Comando shell ou lista de comandos
@@ -278,7 +279,7 @@ def instalar_programas_dnf():
 
             # Outros programas
             "stacer", "qt5-qtcharts.x86_64",
-            "vlc",
+            "vlc", "qt5-qtsvg.x86_64",
             "youtube-dl.noarch",
             "snapd",
             "flatpak",
@@ -287,6 +288,7 @@ def instalar_programas_dnf():
             "steam.i686",
             "wine.x86_64",
             "VirtualBox.x86_64",
+            "mokutil.x86_64",
 
         ]
 
@@ -427,11 +429,26 @@ def configurar_adb():
     """
     Configura o ADB para que ele possa ser executado a partir da linha de comando estando dentro de qualquer pasta
     """
-    executar_comando_shell(
+    executar_comando_shell("sudo ln --symbolic /home/henrique/Android/Sdk/platform-tools/adb /bin/adb",
+                           AcaoExecutadaQuandoOcorrerErro.REPETIR_E_IGNORAR, 5)
+
+
+def assinar_modulos_kernel_virtualbox():
+    executar_comando_shell("sudo dnf --assumeyes install mokutil")
+    comandos = \
         [
-            "sudo ln --symbolic /home/henrique/Android/Sdk/platform-tools/adb /bin/adb"
+            "mkdir /root/signed-modules",
+            "cd /root/signed-modules",
+            "openssl req -new -x509 -newkey rsa:2048 -keyout MOK.priv -outform DER -out MOK.der -nodes -days 36500 -subj \"/CN=VirtualBox/",
+            "chmod 600 MOK.priv",
+            "mokutil --import MOK.der",
         ]
-        , AcaoExecutadaQuandoOcorrerErro.REPETIR_E_IGNORAR, 5)
+    comando_sudo = "sudo sh -c'"
+    for i in comandos:
+        comando_sudo += " {};".format(i)
+    comando_sudo += "'"
+    executar_comando_shell(comando_sudo)
+    executar_comando_shell("")
 
 
 def main():
