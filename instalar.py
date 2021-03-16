@@ -1,6 +1,6 @@
 import enum
-import subprocess
 import platform
+import subprocess
 
 import requests
 
@@ -25,17 +25,6 @@ class AcaoExecutadaQuandoOcorrerErro(enum.Enum):
 
     # Ignora o erro, seguindo para o próximo comando.
     IGNORAR = 3
-
-
-def verificar_versao_sistema_operacional():
-    """
-	Verifica a versão do sistema operacional em que este script está rodando
-	:return:
-	"""
-    distribuicao_linux = platform.dist()
-    if distribuicao_linux[0] != 'redhat' or float(distribuicao_linux[1]) < 8.3 or float(distribuicao_linux[1]) >= 9.0 or \
-            distribuicao_linux[2] != 'Ootpa':
-        raise OSError("Versão de sistema operacional incompatível")
 
 
 def executar_comando_shell(comando_shell, no_erro: AcaoExecutadaQuandoOcorrerErro,
@@ -74,10 +63,31 @@ def executar_comando_shell(comando_shell, no_erro: AcaoExecutadaQuandoOcorrerErr
         raise ValueError("O parâmetro comando_shell só pode ser dos tipos str e list.")
 
 
+"""
+Baixando e importando a biblioteca distro
+"""
+for i in range(0, 5):
+    try:
+        import distro
+
+        break
+    except ImportError or ModuleNotFoundError:
+        executar_comando_shell("sudo pip3 install distro", AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def verificar_versao_sistema_operacional():
+    """
+	Verifica a versão do sistema operacional em que este script está rodando
+	"""
+    if distro.name() != 'Red Hat Enterprise Linux' or distro.codename() != 'Ootpa' or float(
+            distro.version()) < 8.3 or float(distro.version()) >= 9.0:
+        raise OSError("Versão de sistema operacional incompatível")
+    print("OK")
+
+
 def instalar_programas_flatpak():
     """
 	Instala os programas que utilizam o gerenciador de pacotes flatpak
-	:return:
 	"""
     comandos = \
         [
@@ -90,8 +100,8 @@ def instalar_programas_flatpak():
 def instalar_programas_snap():
     """
 	Instala os programas que utilizam o gerenciador de pacotes snap
-	:return:
 	"""
+    instalar_snapd()
     executar_comando_shell(
         [
             "sudo snap install spotify",
@@ -103,6 +113,7 @@ def instalar_programas_snap():
             "sudo snap install clion --classic",
             "sudo snap install rider --classic",
             "sudo snap install flutter --classic",
+            "sudo snap install kotlin --classic",
         ],
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
@@ -110,7 +121,6 @@ def instalar_programas_snap():
 def instalar_programas_pip():
     """
 	Instala os programas que utilizam o gerenciador de pacotes python3 pip
-	:return:
 	"""
     executar_comando_shell("sudo pip3 install protonvpn-cli pycurl", AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR,
                            5)
@@ -119,7 +129,6 @@ def instalar_programas_pip():
 def instalar_rust_lang():
     """
     Instala o compilador da linguagem Rust
-    :return:
     """
     executar_comando_shell("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh;",
                            AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
@@ -128,7 +137,6 @@ def instalar_rust_lang():
 def configurar_visual_studio_code():
     """
     Configurar o Visual Studio Code
-    :return:
     """
 
     executar_comando_shell(
@@ -143,7 +151,6 @@ def configurar_visual_studio_code():
 def instalar_extensoes_visual_studio_code():
     """
     Instala as extensões do Visual Studio Code
-    :return
     """
 
     executar_comando_shell(
@@ -203,7 +210,6 @@ def instalar_extensoes_visual_studio_code():
 def atualizar():
     """
 	Atualiza os pacotes do sistema operacional.
-	:return:
 	"""
     executar_comando_shell("sudo dnf --assumeyes upgrade", AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
@@ -211,7 +217,6 @@ def atualizar():
 def instalar_programas_dnf():
     """
 	Instala os programas que utilizam o gerenciador de pacotes dnf
-	:return:
 	"""
 
     # Habilitando repositórios
@@ -226,12 +231,14 @@ def instalar_programas_dnf():
         [
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
             "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
-            "{}".format(requests.get("https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url),
+            "{}".format(requests.get(
+                "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url),
             "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
         ]
 
     for i in programas_rpm_baixados_da_internet:
-        executar_comando_shell("sudo dnf --assumeyes install {}".format(i))
+        executar_comando_shell("sudo dnf --assumeyes install {}".format(i),
+                               AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
     print("Instalando os programas")
     programas = \
@@ -287,6 +294,7 @@ def instalar_programas_dnf():
     for programa in programas:
         comando += " {}".format(programa)
     executar_comando_shell(comando, AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
 
 def habilitar_repositorio_appstream_rpms():
     """
@@ -349,7 +357,7 @@ def instalar_driver_nvidia():
             # "sudo subscription-manager repos --enable=codeready-builder-for-rhel-8-{}-rpms".format(arquitetura),
             "sudo dnf --assumeyes config-manager --add-repo=https://developer.download.nvidia.com/compute/cuda/repos/rhel8/{}/cuda-rhel8.repo".format(
                 arquitetura),
-            "sudo dnf --assumeyes module install nvidia-driver:latest-dkms"
+            "sudo dnf --assumeyes module install nvidia-driver:latest"
         ],
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
@@ -367,43 +375,71 @@ def habilitar_repositorio_fedora_epel():
 def instalar_free_file_sync():
     """
 	Instala o programa Free File Sync
-	:return:
 	"""
+    versao = "11.8"
     executar_comando_shell(
         [
-            "wget https://freefilesync.org/download/FreeFileSync_11.6_Linux.tar.gz",
-            "tar -xvzf ./FreeFileSync_11.6_Linux.tar.gz",
-            "./FreeFileSync_11.6_Linux/FreeFileSync_11.6_Install.run",
+            "wget https://freefilesync.org/download/FreeFileSync_{}_Linux.tar.gz".format(versao),
+            "tar -xvzf ./FreeFileSync_{}_Linux.tar.gz".format(versao),
+            "chmod 777 ./FreeFileSync_{}_Install.run".format(versao, versao),
+            "./FreeFileSync_{}_Install.run".format(versao, versao),
         ],
         AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
 
 def criar_atalho_para_o_java_jre():
+    """
+    Cria um atalho ao Java Runtime Environment para que ele possa ser executado ao clicar no nautilus em um arquivo .jar
+    """
+    with open("java.desktop", "w") as atalho:
+        atalho.write("[Desktop Entry]\n")
+        atalho.write("Name=Java Runtime Environment\n")
+        atalho.write("Comment=Java Runtime Environment\n")
+        atalho.write("GenericName=Java\n")
+        atalho.write("Keywords=java\n")
+        atalho.write("Exec=java -jar %f\n")
+        atalho.write("Terminal=false\n")
+        atalho.write("X-MultipleArgs=false\n")
+        atalho.write("Type=Application\n")
+        atalho.write("MimeType=application/x-java-archive\n")
+        atalho.write("StartupNotify=true\n")
 
-        with open("java.desktop", "w") as atalho:
-            atalho.write("[Desktop Entry]\n")
-            atalho.write("Name=Java Runtime Environment\n")
-            atalho.write("Comment=Java Runtime Environment\n")
-            atalho.write("GenericName=Java\n")
-            atalho.write("Keywords=java\n")
-            atalho.write("Exec=java -jar %f\n")
-            atalho.write("Terminal=false\n")
-            atalho.write("X-MultipleArgs=false\n")
-            atalho.write("Type=Application\n")
-            atalho.write("MimeType=application/x-java-archive\n")
-            atalho.write("StartupNotify=true\n")
+    executar_comando_shell("sudo cp ./java.desktop /usr/share/applications/java.desktop",
+                           AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
-        executar_comando_shell("sudo cp ./java.desktop /usr/share/applications/java.desktop", AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
 
+def instalar_snapd():
+    """
+    Instala o snapd, gerenciador de pacotes snap
+    """
+    habilitar_repositorio_fedora_epel()
+
+    executar_comando_shell(
+        [
+            "sudo dnf install --assumeyes snapd",
+            "sudo systemctl enable --now snapd.socket",
+            "sudo ln -s /var/lib/snapd/snap /snap",
+        ]
+        , AcaoExecutadaQuandoOcorrerErro.REPETIR_E_ABORTAR, 5)
+
+
+def configurar_adb():
+    """
+    Configura o ADB para que ele possa ser executado a partir da linha de comando estando dentro de qualquer pasta
+    """
+    executar_comando_shell(
+        [
+            "sudo ln --symbolic /home/henrique/Android/Sdk/platform-tools/adb /bin/adb"
+        ]
+        , AcaoExecutadaQuandoOcorrerErro.REPETIR_E_IGNORAR, 5)
 
 
 def main():
     """
 	Função principal
-	:return:
 	"""
     parte = 0
-    total = 11
+    total = 13
 
     # Verificando a versão do sistema operacional
     parte += 1
@@ -435,6 +471,11 @@ def main():
     print("(", parte, "/", total, ")", "Instalando programas pelo gerenciador de pacotes flatpak")
     instalar_programas_flatpak()
 
+    # Instalando o snapd
+    parte += 1
+    print("(", parte, "/", total, ")", "Instalando o Snapd")
+    instalar_snapd()
+
     # Instalando programas pelo snap
     parte += 1
     print("(", parte, "/", total, ")", "Instalando programas pelo gerenciador de pacotes snap")
@@ -444,12 +485,6 @@ def main():
     parte += 1
     print("(", parte, "/", total, ")", "Instalando o compilador de Rust Lang")
     instalar_rust_lang()
-
-    # Configurando o Visual Studio Code
-    parte += 1
-    print("(", parte, "/", total, ")", "Configurando o Visual Studio Code")
-    configurar_visual_studio_code()
-    instalar_extensoes_visual_studio_code()
 
     # # Definindo variáveis de ambiente
     # parte += 1
@@ -465,6 +500,17 @@ def main():
     parte += 1
     print("(", parte, "/", total, ")", "Instalando o Free File Sync")
     instalar_free_file_sync()
+
+    # Adb
+    parte += 1
+    print("(", parte, "/", total, ")", "Configurando o ADB")
+    configurar_adb()
+
+    # Configurando o Visual Studio Code
+    parte += 1
+    print("(", parte, "/", total, ")", "Configurando o Visual Studio Code")
+    configurar_visual_studio_code()
+    instalar_extensoes_visual_studio_code()
 
     # Exibindo mensagem de instalação concluída
     print("Instalação concluída!")
