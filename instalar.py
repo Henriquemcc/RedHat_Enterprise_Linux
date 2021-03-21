@@ -459,12 +459,45 @@ def assinar_modulos_kernel_virtualbox():
 	comandos_shell_serem_executados_depois_de_reiniciar.append("sudo modprobe vboxdrv")
 
 
+def configurar_atualizacoes_automaticas():
+	"""
+	Configura as atualizações automáticas utilizando o DNF Automatic
+	"""
+
+	# Instalando o DNF Automatic
+	instalar_pacotes_dnf("dnf-automatic")
+
+	# Copiando arquivo do configuração do DNF Automatic para ser modificado
+	executar_comando_shell(
+		["sudo cp /etc/dnf/automatic.conf ./automatic.conf.original", "sudo chmod 666 ./automatic.conf.original"])
+
+	# Modificando arquivo de configuração do DNF Automatic
+	with open("automatic.conf.original", "r") as arquivo_original, open("automatic.conf.modificado",
+	                                                                    "w") as arquivo_modificado:
+		for linha in arquivo_original:
+			if "apply_updates =" in linha:
+				arquivo_modificado.write("apply_updates = yes")
+			else:
+				arquivo_modificado.write(linha)
+		arquivo_original.close()
+		arquivo_modificado.close()
+
+	# Copiando arquivo de configuração do DNF Automatic modificado
+	executar_comando_shell("sudo cp --force ./automatic.conf.modificado /etc/dnf/automatic.conf")
+
+	# Habilitando DNF Automatic
+	executar_comando_shell("sudo systemctl enable --now dnf-automatic-notifyonly.timer")
+
+	# Movendo arquivos não mais necessários para a lixeira
+	executar_comando_shell("gio trash ./automatic.conf.original ./automatic.conf.modificado")
+
+
 def main():
 	"""
 	Função principal
 	"""
 	parte = 0
-	total = 15
+	total = 16
 
 	# Verificando a versão do sistema operacional
 	parte += 1
@@ -490,6 +523,11 @@ def main():
 	parte += 1
 	print("(", parte, "/", total, ")", "Instalando programas pelo gerenciador de pacotes dnf")
 	instalar_programas_dnf()
+
+	# Configurando atualizações automáticas
+	parte += 1
+	print("(", parte, "/", total, ")", "Configurando atualizações automáticas")
+	configurar_atualizacoes_automaticas()
 
 	# Instalando programas pelo flatpak
 	parte += 1
