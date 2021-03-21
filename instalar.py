@@ -334,7 +334,8 @@ def instalar_programas_dnf():
 
 		# Outros programas
 		"stacer", "qt5-qtcharts.x86_64", "vlc", "qt5-qtsvg.x86_64", "youtube-dl.noarch", "snapd", "flatpak",
-		"transmission.x86_64", "ffmpeg", "steam.i686", "wine.x86_64", "VirtualBox.x86_64", "mokutil.x86_64", "fdupes"
+		"transmission.x86_64", "ffmpeg", "steam.i686", "wine.x86_64", "VirtualBox.x86_64", "mokutil.x86_64", "fdupes",
+		"dnf-automatic"
 
 	]
 
