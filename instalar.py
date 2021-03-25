@@ -404,11 +404,12 @@ def criar_atalho_para_o_java_jre():
 	"""
 	with open("java.desktop", "w") as arquivo_atalho:
 		arquivo_atalho.writelines(
-			["[Desktop Entry]", "Name=Java Runtime Environment", "Comment=Java Runtime Environment", "GenericName=Java",
-			 "Keywords=java", "Exec=java -jar %f", "Terminal=false", "X-MultipleArgs=false", "Type=Application",
-			 "MimeType=application/x-java-archive", "StartupNotify=true"])
+			["[Desktop Entry]\n", "Name=Java Runtime Environment\n", "Comment=Java Runtime Environment\n",
+			 "GenericName=Java\n", "Keywords=java\n", "Exec=java -jar %f\n", "Terminal=false\n",
+			 "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
+			 "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
 		arquivo_atalho.close()
-	executar_comando_shell("sudo cp ./java.desktop /usr/share/applications/java.desktop")
+	executar_comando_shell("sudo cp --force ./java.desktop /usr/share/applications/java.desktop")
 
 
 def instalar_snapd():
