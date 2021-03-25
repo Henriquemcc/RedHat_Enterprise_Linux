@@ -123,7 +123,7 @@ def registrar_red_hat():
 			print("Criando o arquivo de credenciais da Red Hat:")
 			usuario = input("Usuário: ")
 			senha = input("Senha: ")
-			credenciais_red_hat.writelines([usuario, senha])
+			credenciais_red_hat.writelines([usuario, "\n{}".format(senha)])
 		credenciais_red_hat.close()
 
 	executar_comando_shell("sudo subscription-manager register --username {} --password {}".format(usuario, senha),
@@ -448,10 +448,10 @@ def assinar_modulos_kernel_virtualbox():
 
 	with open("sign-virtual-box", "w") as arquivo_assinar_modulos_virtualbox:
 		arquivo_assinar_modulos_virtualbox.writelines(
-			["#!/bin/bash", "for modfile in $(dirname $(modinfo -n vboxdrv))/*.ko; do", "  echo \"Signing $modfile\"",
-			 "  /usr/src/kernels/$(uname -r)/scripts/sign-file sha256 \\",
-			 "                                /root/signed-modules/MOK.priv \\",
-			 "                                /root/signed-modules/MOK.der \"$modfile\"", "done"])
+			["#!/bin/bash\n", "for modfile in $(dirname $(modinfo -n vboxdrv))/*.ko; do\n",
+			 "  echo \"Signing $modfile\"\n", "  /usr/src/kernels/$(uname -r)/scripts/sign-file sha256 \\\n",
+			 "                                /root/signed-modules/MOK.priv \\\n",
+			 "                                /root/signed-modules/MOK.der \"$modfile\"\n", "done\n"])
 		arquivo_assinar_modulos_virtualbox.close()
 	executar_comando_shell(["sudo cp ./sign-virtual-box /root/signed-modules/sign-virtual-box",
 	                        "sudo chmod 700 /root/signed-modules/sign-virtual-box"])
