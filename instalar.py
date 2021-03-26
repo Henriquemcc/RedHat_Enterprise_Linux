@@ -123,20 +123,41 @@ def registrar_red_hat():
 			print("Criando o arquivo de credenciais da Red Hat:")
 			usuario = input("Usuário: ")
 			senha = input("Senha: ")
-			credenciais_red_hat.writelines([usuario, "\n{}".format(senha)])
+			credenciais_red_hat.writelines([usuario, "\n", senha])
 		credenciais_red_hat.close()
 
 	executar_comando_shell("sudo subscription-manager register --username {} --password {}".format(usuario, senha),
 	                       AcaoQuandoOcorrerErro.IGNORAR)
 
 
+def instalar_pacotes_flatpak(pacotes):
+	"""
+	Instala os pacotes utilizando o gerenciador de pacotes flatpak
+	:param pacotes: Pacotes que serão instalados
+	"""
+	if type(pacotes) is str:
+		for repeticao in range(0, 2):
+			try:
+				executar_comando_shell("sudo flatpak install --system --assumeyes {}".format(pacotes))
+				break
+			except subprocess.CalledProcessError as e:
+				print(e)
+				instalar_pacotes_dnf("flatpak")
+				if repeticao == 1:
+					raise e
+	elif type(pacotes) is list:
+		for pacote in pacotes:
+			instalar_pacotes_flatpak(pacote)
+
+
 def instalar_programas_flatpak():
 	"""
 	Instala os programas que utilizam o gerenciador de pacotes flatpak
 	"""
-	comandos = ["sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo",
-	            "sudo flatpak install --assumeyes flathub com.google.AndroidStudio"]
-	executar_comando_shell(comandos)
+	executar_comando_shell(
+		"sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo")
+	instalar_pacotes_flatpak(["flathub", "https://dl.flathub.org/repo/appstream/com.google.AndroidStudio.flatpakref",
+	                          "https://dl.flathub.org/repo/appstream/com.discordapp.Discord.flatpakref"])
 
 
 def instalar_pacotes_snap(pacotes, parametros: str = None):
@@ -156,7 +177,8 @@ def instalar_pacotes_snap(pacotes, parametros: str = None):
 					executar_comando_shell("sudo snap install {} {}".format(pacotes, parametros),
 					                       AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR)
 				break
-			except Exception as e:
+			except subprocess.CalledProcessError as e:
+				print(e)
 				instalar_snapd()
 				if repeticao == 1:
 					raise e
@@ -315,27 +337,25 @@ def instalar_programas_dnf():
 		"https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
 
 		# Libreoffice
-		"libreoffice-writer.x86_64", "libreoffice-calc.x86_64", "libreoffice-impress.x86_64", "libreoffice-math.x86_64",
-		"libreoffice-draw.x86_64", "libreoffice-langpack-pt-BR.x86_64", "libreoffice-langpack-en.x86_64",
-		"unoconv.noarch",
+		"libreoffice-writer", "libreoffice-calc", "libreoffice-impress", "libreoffice-math", "libreoffice-draw",
+		"libreoffice-langpack-pt-BR", "libreoffice-langpack-en", "unoconv.noarch",
 
 		# Impressora HP
-		"hplip.x86_64",
+		"hplip",
 
 		# KVM
 		"qemu-kvm", "libvirt",
 
 		# Sistemas de arquivos não nativos do linux
-		"ntfs-3g.x86_64", "exfat-utils fuse", "fuse-exfat",
+		"ntfs-3g", "exfat-utils fuse", "fuse-exfat",
 
 		# Ferramentas de desenvolvimento
-		"java-latest-openjdk-devel.x86_64", "java-1.8.0-openjdk-devel.x86_64", "golang.x86_64", "gcc.x86_64",
-		"dotnet-sdk-5.0.x86_64", "aspnetcore-runtime-5.0", "dotnet-runtime-5.0", "git.x86_64", "git-lfs.x86_64",
+		"java-latest-openjdk-devel", "java-1.8.0-openjdk-devel", "golang", "gcc", "dotnet-sdk-5.0",
+		"aspnetcore-runtime-5.0", "dotnet-runtime-5.0", "git", "git-lfs",
 
 		# Outros programas
-		"stacer", "qt5-qtcharts.x86_64", "vlc", "qt5-qtsvg.x86_64", "youtube-dl.noarch", "snapd", "flatpak",
-		"transmission.x86_64", "ffmpeg", "steam.i686", "wine.x86_64", "VirtualBox.x86_64", "mokutil.x86_64", "fdupes",
-		"dnf-automatic"
+		"stacer", "qt5-qtcharts", "vlc", "qt5-qtsvg", "youtube-dl.noarch", "snapd", "flatpak", "transmission", "ffmpeg",
+		"steam.i686", "VirtualBox", "mokutil", "fdupes", "dnf-automatic"
 
 	]
 
@@ -422,7 +442,8 @@ def instalar_snapd():
 			executar_comando_shell("sudo systemctl enable --now snapd.socket")
 			executar_comando_shell("sudo ln -s /var/lib/snapd/snap /snap", AcaoQuandoOcorrerErro.IGNORAR)
 			break
-		except Exception as e:
+		except subprocess.CalledProcessError as e:
+			print(e)
 			habilitar_repositorio_fedora_epel()
 			if repeticao == 1:
 				raise e
@@ -432,7 +453,7 @@ def configurar_adb():
 	"""
 	Configura o ADB para que ele possa ser executado a partir da linha de comando estando dentro de qualquer pasta
 	"""
-	executar_comando_shell("sudo ln --symbolic /home/henrique/Android/Sdk/platform-tools/adb /bin/adb",
+	executar_comando_shell("sudo ln --symbolic ~/Android/Sdk/platform-tools/adb /bin/adb",
 	                       AcaoQuandoOcorrerErro.IGNORAR)
 
 
