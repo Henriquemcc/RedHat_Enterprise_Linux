@@ -223,54 +223,24 @@ def configurar_adb():
 
 
 def configurar_virtualbox():
-    with open("sign-virtual-box", "w") as arquivo_assinar_modulos_virtualbox:
-        arquivo_assinar_modulos_virtualbox.writelines(
-            ["#!/bin/bash\n", "for modfile in $(dirname $(modinfo -n vboxdrv))/*.ko; do\n",
-             "  echo \"Signing $modfile\"\n", "  /usr/src/kernels/$(uname -r)/scripts/sign-file sha256 \\\n",
-             "                                /root/signed-modules/MOK.priv \\\n",
-             "                                /root/signed-modules/MOK.der \"$modfile\"\n", "done\n"])
-        arquivo_assinar_modulos_virtualbox.close()
-
     gerenciador_dnf.install("mokutil")
 
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar(
-        [
-            "sudo mkdir /root/signed-modules",
-            "sudo openssl req -new -x509 -newkey rsa:2048 -keyout /root/signed-modules/MOK.priv -outform DER -out /root/signed-modules/MOK.der -nodes -days 36500 -subj '/CN=VirtualBox/'",
-            "sudo chmod 600 /root/signed-modules/MOK.priv", "sudo mokutil --import /root/signed-modules/MOK.der"
-                                                            "sudo chmod 700 /root/signed-modules/sign-virtual-box",
-            "sudo /root/signed-modules/sign-virtual-box",
-            "sudo modprobe vboxdrv",
-            "sudo cp ./sign-virtual-box /root/signed-modules/sign-virtual-box",
-            "sudo chmod 700 /root/signed-modules/sign-virtual-box",
-            "sudo /root/signed-modules/sign-virtual-box",
-            "sudo modprobe vboxdrv",
-            "gio trash ./sign-virtual-box"
-        ]
-    )
+    shell.executar("sudo bash ./Scripts/SignVirtualboxModules.sh")
 
 
 def main():
-    euid = os.geteuid()
-    if euid == 0:
-        conectar_na_rede_wifi()
-        registrar_red_hat()
-        instalar_pacotes_dnf()
-        instalar_pacotes_snap()
-        instalar_pacotes_pip()
-        instalar_pacotes_flatpak()
-        configurar_java()
-        configurar_adb()
-        configurar_virtualbox()
-    else:
-        print("Este script não está rodando como root")
-        shell = Shell(acao_quando_ocorrer_erro=AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR)
-        localizacao_executavel_python = sys.executable
-        localizacao_arquivo_python = os.path.abspath(__file__)
-        shell.executar("sudo '{}' '{}'".format(localizacao_executavel_python, localizacao_arquivo_python))
-        instalar_extensoes_visual_studio_code()
-        instalar_rust_lang()
+    conectar_na_rede_wifi()
+    registrar_red_hat()
+    instalar_pacotes_dnf()
+    instalar_pacotes_snap()
+    instalar_pacotes_pip()
+    instalar_pacotes_flatpak()
+    configurar_java()
+    configurar_adb()
+    configurar_virtualbox()
+    instalar_extensoes_visual_studio_code()
+    instalar_rust_lang()
 
 
 if __name__ == '__main__':
