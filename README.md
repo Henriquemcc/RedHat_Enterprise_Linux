@@ -13,6 +13,7 @@ git clone https://github.com/Henriquemcc/Workstation_com_RedHat_Enterprise_Linux
 ````
 
 2. Entre na pasta 'Workstation_com_RedHat_Enterprise_Linux'
+
 ````
 cd ./Workstation_com_RedHat_Enterprise_Linux
 ````
@@ -20,7 +21,7 @@ cd ./Workstation_com_RedHat_Enterprise_Linux
 3. Execute este script em Python
 
 ````
-python3 instalar.py
+python3 Instalar.py
 ````
 
 # Licença
