@@ -1,6 +1,3 @@
-import os
-import sys
-
 import requests
 
 from adapter import Wifi
@@ -24,6 +21,9 @@ gerenciador_visual_studio_code = VisualStudioCode()
 
 
 def conectar_na_rede_wifi():
+    """
+    Conecta á rede wifi.
+    """
     Wifi.conectar_rede_wifi(
         __controlador_credenciais.credencial_rede_wifi.usuario,
         __controlador_credenciais.credencial_rede_wifi.senha
@@ -31,12 +31,18 @@ def conectar_na_rede_wifi():
 
 
 def registrar_red_hat():
+    """
+    Registra instalação á conta da Red Hat.
+    """
     subscription_manager.register(
         __controlador_credenciais.credencial_conta_red_hat.usuario,
         __controlador_credenciais.credencial_conta_red_hat.senha)
 
 
 def instalar_pacotes_dnf():
+    """
+    Adiciona repositórios, atualiza e instala os pacotes DNF.
+    """
     subscription_manager.habilitar_codeready_builder()
     subscription_manager.habilitar_baseos_rpms()
     subscription_manager.habilitar_appstream_rpms()
@@ -88,7 +94,10 @@ def instalar_pacotes_dnf():
 
 
 def instalar_pacotes_snap():
-    gerenciador_snap.instalar_snapd()
+    """
+    Instala o gerenciador de pacotes Snap e os pacotes Snap.
+    """
+    Snap.instalar_snapd()
     gerenciador_snap.install([
         "keepassxc --devmode",
         "spotify",
@@ -104,10 +113,18 @@ def instalar_pacotes_snap():
 
 
 def instalar_pacotes_pip():
+    """
+    Instala o gerenciador de pacotes Pip e os pacotes Pip.
+    """
+    Pip.instalar_pip()
     gerenciador_pip.install("protonvpn-cli")
 
 
 def instalar_pacotes_flatpak():
+    """
+    Instala o gerenciador de pacotes Flatpak, instala o Flathub e os pacotes Flatpak
+    """
+    Flatpak.instalar_flatpak()
     gerenciador_flatpak.instalar_flatpak()
     gerenciador_flatpak.habilitar_flathub()
     gerenciador_flatpak.install(
@@ -120,6 +137,10 @@ def instalar_pacotes_flatpak():
 
 
 def instalar_extensoes_visual_studio_code():
+    """
+    Instala as extensões do Visual Studio Code.
+    """
+    VisualStudioCode.instalar_visual_studio_code()
     gerenciador_visual_studio_code.install_extension(
         [
             # Tradução do VS Code em Português
@@ -180,11 +201,17 @@ def instalar_extensoes_visual_studio_code():
 
 
 def instalar_rust_lang():
+    """
+    Instala o compilador e o gerenciador de dependências da linguagem de programação Rust.
+    """
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
     shell.executar("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
 
 
 def configurar_java():
+    """
+    Configura o compilador e á máquina virtual Java.
+    """
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
 
     # Criando comando java8 e javac8
@@ -219,11 +246,17 @@ def configurar_java():
 
 
 def configurar_adb():
+    """
+    Configura o Android ADB.
+    """
     Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10) \
         .executar("sudo ln --symbolic ~/Android/Sdk/platform-tools/adb /bin/adb")
 
 
 def configurar_virtualbox():
+    """
+    Configura o VirtualBox.
+    """
     gerenciador_dnf.install("mokutil")
 
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
@@ -231,11 +264,17 @@ def configurar_virtualbox():
 
 
 def configurar_script_de_atualizacao():
+    """
+    Configura o script de atualização de pacotes do sistema.
+    """
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
     shell.executar("sudo cp ./Scripts/Update.sh /usr/bin/update")
 
 
 def main():
+    """
+    Método principal.
+    """
     conectar_na_rede_wifi()
     registrar_red_hat()
     instalar_pacotes_dnf()

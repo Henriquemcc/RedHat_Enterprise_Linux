@@ -4,8 +4,8 @@ import subprocess
 
 class AcaoQuandoOcorrerErro(enum.Enum):
     """
-	Enum das ações a serem executadas caso ocorra algum erro
-	"""
+    Enum das ações a serem executadas caso ocorra algum erro
+    """
 
     # Aborta quando ocorrer erro
     ABORTAR = 0
@@ -23,13 +23,25 @@ class AcaoQuandoOcorrerErro(enum.Enum):
 
 
 class Shell:
+    """
+    Classe que realiza a comunicação do código Python com o shell do Linux.
+    """
 
     def __init__(self, acao_quando_ocorrer_erro: AcaoQuandoOcorrerErro = AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR,
                  quantidade_maxima_de_repeticoes_em_caso_de_erro: int = 5):
+        """
+        Método construtor.
+        :param acao_quando_ocorrer_erro: O que deve ser feito caso o comando Shell resulte em erro.
+        :param quantidade_maxima_de_repeticoes_em_caso_de_erro: Caso seja para repetir, o número máximo de repetições.
+        """
         self.acao_quando_ocorrer_erro = acao_quando_ocorrer_erro
         self.quantidade_maxima_de_repeticoes_em_caso_de_erro = quantidade_maxima_de_repeticoes_em_caso_de_erro
 
     def executar(self, comando):
+        """
+        Executa comando(s) shell.
+        :param comando: Comando a ser executado.
+        """
         if type(comando) is str:
             if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.ABORTAR:
                 subprocess.run(comando, shell=True, check=True)
@@ -54,6 +66,11 @@ class Shell:
                 self.executar(c)
 
     def executar_e_obter_saida(self, comando):
+        """
+        Executa comando(s) shell e obtém a saida.
+        :param comando: Comando(s) shell a ser(em) executado(s).
+        :return: Saida(s) do(s) comando(s).
+        """
         if type(comando) is str:
 
             if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.ABORTAR:
