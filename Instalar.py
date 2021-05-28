@@ -1,3 +1,7 @@
+import io
+import os.path
+from os.path import expanduser
+
 import requests
 
 from adapter import Wifi
@@ -245,12 +249,34 @@ def configurar_java():
     shell.executar("gio trash ./java8.desktop")
 
 
+def configurar_diretorio_home_bin():
+    """
+    Configura o diretório ~/bin adicionando ele ao .bashrc
+    """
+    diretorio_home = expanduser("~")
+    path_bash_rc = "{}/.bashrc".format(diretorio_home)
+    export_bin_string = "export PATH=\"$HOME/bin:$PATH\""
+    # Verificando se o arquivo contem o export path
+    with open(path_bash_rc, "r+") as arquivo:
+        linhas = arquivo.readlines()
+        if export_bin_string not in linhas:
+            arquivo.seek(0, io.SEEK_END)
+            arquivo.write(export_bin_string)
+        arquivo.close()
+
+
 def configurar_adb():
     """
     Configura o Android ADB.
     """
-    Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10) \
-        .executar("sudo ln --symbolic ~/Android/Sdk/platform-tools/adb /bin/adb")
+    configurar_diretorio_home_bin()
+    diretorio_home = expanduser("~")
+    path_adb = "{}/Android/Sdk/platform-tools/adb".format(diretorio_home)
+    path_pasta_atalho = "{}/bin".format(diretorio_home)
+    path_atalho = "{}/adb".format(path_pasta_atalho)
+    os.mkdir(path_pasta_atalho)
+    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+    shell.executar("ln --symbolic {} {}".format(path_adb, path_atalho))
 
 
 def configurar_virtualbox():
