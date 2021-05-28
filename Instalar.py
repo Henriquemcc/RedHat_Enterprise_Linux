@@ -113,7 +113,8 @@ def instalar_pacotes_flatpak():
     gerenciador_flatpak.install(
         [
             "https://dl.flathub.org/repo/appstream/com.google.AndroidStudio.flatpakref",
-            "https://dl.flathub.org/repo/appstream/com.discordapp.Discord.flatpakref"
+            "https://dl.flathub.org/repo/appstream/com.discordapp.Discord.flatpakref",
+            "https://dl.flathub.org/repo/appstream/org.audacityteam.Audacity.flatpakref"
         ]
     )
 
@@ -229,6 +230,11 @@ def configurar_virtualbox():
     shell.executar("sudo bash ./Scripts/SignVirtualboxModules.sh")
 
 
+def configurar_script_de_atualizacao():
+    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+    shell.executar("sudo cp ./Scripts/Update.sh /usr/bin/update")
+
+
 def main():
     conectar_na_rede_wifi()
     registrar_red_hat()
@@ -239,6 +245,7 @@ def main():
     configurar_java()
     configurar_adb()
     configurar_virtualbox()
+    configurar_script_de_atualizacao()
     instalar_extensoes_visual_studio_code()
     instalar_rust_lang()
 
