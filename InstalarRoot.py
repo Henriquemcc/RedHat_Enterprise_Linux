@@ -1,27 +1,21 @@
-import io
-import os.path
-from os.path import expanduser
+import os
+import sys
 
 import requests
 
 from adapter import Wifi
 from adapter.Dnf import Dnf
 from adapter.Flatpak import Flatpak
-from adapter.Pip import Pip
 from adapter.Shell import Shell, AcaoQuandoOcorrerErro
 from adapter.Snap import Snap
 from adapter.SubscriptionManager import SubscriptionManager
-from adapter.VisualStudioCode import VisualStudioCode
 from controller.ControladorDeCredenciais import ControladorDeCredenciais
 
 __controlador_credenciais = ControladorDeCredenciais("Credenciais.bin")
-
 subscription_manager = SubscriptionManager()
 gerenciador_dnf = Dnf()
 gerenciador_snap = Snap()
-gerenciador_pip = Pip()
 gerenciador_flatpak = Flatpak()
-gerenciador_visual_studio_code = VisualStudioCode()
 
 
 def conectar_na_rede_wifi():
@@ -116,14 +110,6 @@ def instalar_pacotes_snap():
     ])
 
 
-def instalar_pacotes_pip():
-    """
-    Instala o gerenciador de pacotes Pip e os pacotes Pip.
-    """
-    Pip.instalar_pip()
-    gerenciador_pip.install("protonvpn-cli")
-
-
 def instalar_pacotes_flatpak():
     """
     Instala o gerenciador de pacotes Flatpak, instala o Flathub e os pacotes Flatpak
@@ -138,78 +124,6 @@ def instalar_pacotes_flatpak():
             "https://dl.flathub.org/repo/appstream/org.audacityteam.Audacity.flatpakref"
         ]
     )
-
-
-def instalar_extensoes_visual_studio_code():
-    """
-    Instala as extensões do Visual Studio Code.
-    """
-    VisualStudioCode.instalar_visual_studio_code()
-    gerenciador_visual_studio_code.install_extension(
-        [
-            # Tradução do VS Code em Português
-            "ms-ceintl.vscode-language-pack-pt-br",
-
-            # Linguagem C/C++
-            "ms-vscode.cpptools",
-            "ms-vscode.cmake-tools",
-            "austin.code-gnu-global",
-
-            # Linguagem C#
-            "ms-dotnettools.csharp",
-
-            # Linguagem Java
-            "vscjava.vscode-java-debug",
-            "vscjava.vscode-maven",
-            "vscjava.vscode-java-dependency",
-            "vscjava.vscode-java-pack",
-            "vscjava.vscode-java-test",
-            "redhat.java",
-
-            # Linguagem Rust
-            "matklad.rust-analyzer",
-            "vadimcn.vscode-lldb",
-            "rust-lang.rust",
-
-            # Linguagem Go
-            "golang.Go",
-
-            # HTML, CSS e Javascript
-            "ecmel.vscode-html-css",
-            "firefox-devtools.vscode-firefox-debug",
-            "msjsdiag.debugger-for-chrome",
-            "dbaeumer.vscode-eslint",
-
-            # Tema do VS Code
-            "GitHub.github-vscode-theme",
-
-            # Markdown
-            "DavidAnson.vscode-markdownlint",
-
-            # Powershell
-            " ms-vscode.PowerShell",
-
-            # Indentação de código
-            "NathanRidley.autotrim",
-            "esbenp.prettier-vscode",
-
-            # AI-assisted IntelliSense
-            "VisualStudioExptTeam.vscodeintellicode"
-        ]
-    )
-
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar("echo 'fs.inotify.max_user_watches=524288' | sudo tee --append /etc/sysctl.conf")
-    shell.executar("sudo sysctl -p")
-    shell.executar("git config --global core.editor \"code --wait\"")
-
-
-def instalar_rust_lang():
-    """
-    Instala o compilador e o gerenciador de dependências da linguagem de programação Rust.
-    """
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar("curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh")
 
 
 def configurar_java():
@@ -249,36 +163,6 @@ def configurar_java():
     shell.executar("gio trash ./java8.desktop")
 
 
-def configurar_diretorio_home_bin():
-    """
-    Configura o diretório ~/bin adicionando ele ao .bashrc
-    """
-    diretorio_home = expanduser("~")
-    path_bash_rc = "{}/.bashrc".format(diretorio_home)
-    export_bin_string = "export PATH=\"$HOME/bin:$PATH\""
-    # Verificando se o arquivo contem o export path
-    with open(path_bash_rc, "r+") as arquivo:
-        linhas = arquivo.readlines()
-        if export_bin_string not in linhas:
-            arquivo.seek(0, io.SEEK_END)
-            arquivo.write(export_bin_string)
-        arquivo.close()
-
-
-def configurar_adb():
-    """
-    Configura o Android ADB.
-    """
-    configurar_diretorio_home_bin()
-    diretorio_home = expanduser("~")
-    path_adb = "{}/Android/Sdk/platform-tools/adb".format(diretorio_home)
-    path_pasta_atalho = "{}/bin".format(diretorio_home)
-    path_atalho = "{}/adb".format(path_pasta_atalho)
-    os.mkdir(path_pasta_atalho)
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar("ln --symbolic {} {}".format(path_adb, path_atalho))
-
-
 def configurar_virtualbox():
     """
     Configura o VirtualBox.
@@ -305,15 +189,23 @@ def main():
     registrar_red_hat()
     instalar_pacotes_dnf()
     instalar_pacotes_snap()
-    instalar_pacotes_pip()
     instalar_pacotes_flatpak()
     configurar_java()
-    configurar_adb()
     configurar_virtualbox()
     configurar_script_de_atualizacao()
-    instalar_extensoes_visual_studio_code()
-    instalar_rust_lang()
 
 
 if __name__ == '__main__':
-    main()
+
+    # Verificando se eh root
+    if os.geteuid() == 0:
+        main()
+    else:
+        # Executando como root
+        print("Este script não está rodando como root.")
+        print("Realizando a elevação de privilégio...")
+        shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+        caminho_absoluto_deste_arquivo_python = os.path.abspath(__file__)
+        caminho_absoluto_deste_interpretador_python = sys.executable
+        shell.executar("sudo {} {}".format(caminho_absoluto_deste_interpretador_python,
+                                           caminho_absoluto_deste_arquivo_python))

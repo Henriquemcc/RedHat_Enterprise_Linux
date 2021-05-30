@@ -19,7 +19,7 @@ class Pip:
         :param pacote: Pacote(s) a ser(em) instalado(s).
         """
         if type(pacote) is str:
-            self.__shell.executar("sudo pip3 install {}".format(pacote))
+            self.__shell.executar("pip3 install {}".format(pacote))
         elif type(pacote) is list:
             for p in pacote:
                 self.install(p)

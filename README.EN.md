@@ -6,23 +6,11 @@ This is the installation script for my programs on my Red Hat Enterprise Linux m
 
 # How to run
 
-1. Clone this git repository
+1. Clone this Git repository
 
-````
-git clone https://github.com/Henriquemcc/Workstation_com_RedHat_Enterprise_Linux.git
-````
+2. Open the terminal in the 'Workstation_com_RedHat_Enterprise_Linux' folder
 
-2. Go to the folder 'Workstation_com_RedHat_Enterprise_Linux'
-
-````
-cd ./Workstation_com_RedHat_Enterprise_Linux
-````
-
-3. Run this python script
-
-````
-python3 Instalar.py
-````
+3. Run 'Instalar.sh' file
 
 # License
 

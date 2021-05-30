@@ -8,21 +8,9 @@ Este é o script de instalação dos meus programas em minha máquina com Red Ha
 
 1. Clone este repositório Git
 
-````
-git clone https://github.com/Henriquemcc/Workstation_com_RedHat_Enterprise_Linux.git
-````
+2. Abra o terminal na pasta 'Workstation_com_RedHat_Enterprise_Linux'
 
-2. Entre na pasta 'Workstation_com_RedHat_Enterprise_Linux'
-
-````
-cd ./Workstation_com_RedHat_Enterprise_Linux
-````
-
-3. Execute este script em Python
-
-````
-python3 Instalar.py
-````
+3. Execute o arquivo 'Instalar.sh'
 
 # Licença
 
