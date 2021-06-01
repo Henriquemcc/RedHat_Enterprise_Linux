@@ -58,7 +58,8 @@ class Shell:
                         break
                     except subprocess.CalledProcessError as erro:
                         print(erro)
-                        if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR and c == self.quantidade_maxima_de_repeticoes_em_caso_de_erro - 1:
+                        if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR and \
+                                c == self.quantidade_maxima_de_repeticoes_em_caso_de_erro - 1:
                             raise erro
 
         elif type(comando) is list:
@@ -82,13 +83,15 @@ class Shell:
                 except subprocess.CalledProcessError as erro:
                     print(erro)
 
-            elif self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR or self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR:
+            elif self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR or \
+                    self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR:
                 for c in range(0, self.quantidade_maxima_de_repeticoes_em_caso_de_erro):
                     try:
                         return subprocess.check_output(comando, shell=True)
                     except subprocess.CalledProcessError as erro:
                         print(erro)
-                        if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR and c == self.quantidade_maxima_de_repeticoes_em_caso_de_erro - 1:
+                        if self.acao_quando_ocorrer_erro == AcaoQuandoOcorrerErro.REPETIR_E_ABORTAR and \
+                                c == self.quantidade_maxima_de_repeticoes_em_caso_de_erro - 1:
                             raise erro
 
         elif type(comando) is list:

@@ -64,7 +64,8 @@ def instalar_pacotes_dnf():
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
             "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
             requests.get(
-                "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url,
+                "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true"
+                "&linuxArchiveType=rpm").url,
             "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
 
             # Libreoffice
@@ -204,8 +205,8 @@ if __name__ == '__main__':
         # Executando como root
         print("Este script não está rodando como root.")
         print("Realizando a elevação de privilégio...")
-        shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+        __shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
         caminho_absoluto_deste_arquivo_python = os.path.abspath(__file__)
         caminho_absoluto_deste_interpretador_python = sys.executable
-        shell.executar("sudo {} {}".format(caminho_absoluto_deste_interpretador_python,
-                                           caminho_absoluto_deste_arquivo_python))
+        __shell.executar("sudo {} {}".format(caminho_absoluto_deste_interpretador_python,
+                                             caminho_absoluto_deste_arquivo_python))
