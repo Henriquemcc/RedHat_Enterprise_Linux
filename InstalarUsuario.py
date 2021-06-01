@@ -54,9 +54,9 @@ def configurar_diretorio_home_bin():
     # Verificando se o arquivo contem o export path
     with open(path_bash_rc, "r+") as arquivo:
         linhas = arquivo.readlines()
-        if export_bin_string not in linhas:
+        if not any(export_bin_string in linha for linha in linhas):
             arquivo.seek(0, io.SEEK_END)
-            arquivo.write(export_bin_string)
+            arquivo.write("{}\n".format(export_bin_string))
         arquivo.close()
 
 
