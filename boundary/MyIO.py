@@ -4,6 +4,9 @@ def read_string(msg):
     :param msg: Mensagem pedindo qual valor espera que o usuario digite.
     :return: String lida.
     """
+
+    input_data = None
+
     erro = True
     while erro:
         try:
@@ -21,6 +24,9 @@ def read_integer(msg):
     :param msg: Mensagem pedindo qual valor espera que o usuario digite.
     :return: Numero inteiro lido.
     """
+
+    integer = None
+
     erro = True
     while erro:
         try:
@@ -39,6 +45,9 @@ def read_float(msg):
     :param msg: Mensagem pedindo qual valor espera que o usuario digite.
     :return: Numero real lido.
     """
+
+    float_value = None
+
     erro = True
     while erro:
         try:
@@ -57,6 +66,9 @@ def read_bool(msg):
     :param msg: Mensagem pedindo qual valor espera que o usuario digite.
     :return: Valor booleano lido.
     """
+
+    boolean = None
+
     erro = True
     while erro:
         try:

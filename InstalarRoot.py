@@ -1,4 +1,6 @@
+import io
 import os
+import shutil
 import sys
 
 import requests
@@ -11,7 +13,7 @@ from adapter.Snap import Snap
 from adapter.SubscriptionManager import SubscriptionManager
 from controller.ControladorDeCredenciais import ControladorDeCredenciais
 
-__controlador_credenciais = ControladorDeCredenciais("Credenciais.bin")
+__controlador_credenciais = ControladorDeCredenciais()
 subscription_manager = SubscriptionManager()
 gerenciador_dnf = Dnf()
 gerenciador_snap = Snap()
@@ -64,7 +66,8 @@ def instalar_pacotes_dnf():
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
             "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
             requests.get(
-                "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true&linuxArchiveType=rpm").url,
+                "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true"
+                "&linuxArchiveType=rpm").url,
             "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
 
             # Libreoffice
@@ -142,7 +145,6 @@ def configurar_java():
              "GenericName=Java\n", "Keywords=java\n", "Exec=java -jar %f\n", "Terminal=false\n",
              "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
              "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
-        arquivo_atalho.close()
 
     shell.executar("sudo chmod 777 ./java.desktop")
     shell.executar("sudo cp --force ./java.desktop /usr/share/applications/java.desktop")
@@ -155,7 +157,6 @@ def configurar_java():
              "GenericName=Java8\n", "Keywords=java8\n", "Exec=java8 -jar %f\n", "Terminal=false\n",
              "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
              "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
-        arquivo_atalho.close()
 
     shell.executar("sudo chmod 777 ./java8.desktop")
     shell.executar("sudo cp --force ./java8.desktop /usr/share/applications/java8.desktop")
@@ -181,6 +182,36 @@ def configurar_script_de_atualizacao():
     shell.executar("sudo cp ./Scripts/Update.sh /usr/bin/update")
 
 
+def configurar_grub():
+    """
+    Configura o Grub
+    """
+
+    caminho_absoluto_configuracao_grub = "/etc/default/grub"
+    caminho_absoluto_configuracao_grub_backup = "/etc/default/grub.old"
+
+    try:
+        shutil.copy(caminho_absoluto_configuracao_grub, caminho_absoluto_configuracao_grub_backup)
+    except Exception as e:
+        print(e)
+        return
+
+    grub_default_saved_param = "GRUB_DEFAULT=saved"
+    grub_savedefault_true_param = "GRUB_SAVEDEFAULT=true"
+
+    with open(caminho_absoluto_configuracao_grub, "r+") as arquivo:
+        linhas = arquivo.readlines()
+        if not any(grub_default_saved_param in linha for linha in linhas):
+            arquivo.seek(0, io.SEEK_END)
+            arquivo.write("{}\n".format(grub_default_saved_param))
+        if not any(grub_savedefault_true_param in linha for linha in linhas):
+            arquivo.seek(0, io.SEEK_END)
+            arquivo.write("{}\n".format(grub_savedefault_true_param))
+
+    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+    shell.executar("sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg")
+
+
 def main():
     """
     Método principal.
@@ -193,6 +224,7 @@ def main():
     configurar_java()
     configurar_virtualbox()
     configurar_script_de_atualizacao()
+    configurar_grub()
 
 
 if __name__ == '__main__':
@@ -204,8 +236,8 @@ if __name__ == '__main__':
         # Executando como root
         print("Este script não está rodando como root.")
         print("Realizando a elevação de privilégio...")
-        shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+        __shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
         caminho_absoluto_deste_arquivo_python = os.path.abspath(__file__)
         caminho_absoluto_deste_interpretador_python = sys.executable
-        shell.executar("sudo {} {}".format(caminho_absoluto_deste_interpretador_python,
-                                           caminho_absoluto_deste_arquivo_python))
+        __shell.executar("sudo {} {}".format(caminho_absoluto_deste_interpretador_python,
+                                             caminho_absoluto_deste_arquivo_python))

@@ -113,8 +113,6 @@ class Dnf:
                     arquivo_modificado.write("apply_updates = yes")
                 else:
                     arquivo_modificado.write(linha)
-            arquivo_original.close()
-            arquivo_modificado.close()
 
         # Copiando arquivo de configuração do DNF Automatic modificado
         shell.executar("sudo cp --force ./automatic.conf.modificado /etc/dnf/automatic.conf")
