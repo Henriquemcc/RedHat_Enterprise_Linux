@@ -1,4 +1,6 @@
+import io
 import os
+import shutil
 import sys
 
 import requests
@@ -182,6 +184,36 @@ def configurar_script_de_atualizacao():
     shell.executar("sudo cp ./Scripts/Update.sh /usr/bin/update")
 
 
+def configurar_grub():
+    """
+    Configura o Grub
+    """
+
+    caminho_absoluto_configuracao_grub = "/etc/default/grub"
+    caminho_absoluto_configuracao_grub_backup = "/etc/default/grub.old"
+
+    try:
+        shutil.copy(caminho_absoluto_configuracao_grub, caminho_absoluto_configuracao_grub_backup)
+    except Exception as e:
+        print(e)
+        return
+
+    grub_default_saved_param = "GRUB_DEFAULT=saved"
+    grub_savedefault_true_param = "GRUB_SAVEDEFAULT=true"
+
+    with open(caminho_absoluto_configuracao_grub, "r+") as arquivo:
+        linhas = arquivo.readlines()
+        if not any(grub_default_saved_param in linha for linha in linhas):
+            arquivo.seek(0, io.SEEK_END)
+            arquivo.write("{}\n".format(grub_default_saved_param))
+        if not any(grub_savedefault_true_param in linha for linha in linhas):
+            arquivo.seek(0, io.SEEK_END)
+            arquivo.write("{}\n".format(grub_savedefault_true_param))
+
+    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+    shell.executar("sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg")
+
+
 def main():
     """
     Método principal.
@@ -194,6 +226,7 @@ def main():
     configurar_java()
     configurar_virtualbox()
     configurar_script_de_atualizacao()
+    configurar_grub()
 
 
 if __name__ == '__main__':
