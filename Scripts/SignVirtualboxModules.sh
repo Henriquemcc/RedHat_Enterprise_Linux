@@ -13,10 +13,12 @@ openssl req -new -x509 -newkey rsa:2048 -keyout MOK.priv -outform DER -out MOK.d
 chmod 600 MOK.priv
 mokutil --import MOK.der
 cd /usr/bin || exit 1
-echo "#!/bin/bash" >>sign_virtualBox.sh
-echo "for modfile in \$(dirname \"\$(modinfo -n vboxdrv)\")/*.ko; do" >>sign_virtualBox.sh
-echo "echo \"Signing \$modfile\"" >>sign_virtualBox.sh
-echo "/usr/src/kernels/\"\$(uname -r)\"/scripts/sign-file sha256 /root/signed-modules/MOK.priv /root/signed-modules/MOK.der \"\$modfile\"" >>sign_virtualBox.sh
-echo "done" >>sign_virtualBox.sh
+{
+  echo "#!/bin/bash"
+  echo "for modfile in \$(dirname \"\$(modinfo -n vboxdrv)\")/*.ko; do"
+  echo "echo \"Signing \$modfile\""
+  echo "/usr/src/kernels/\"\$(uname -r)\"/scripts/sign-file sha256 /root/signed-modules/MOK.priv /root/signed-modules/MOK.der \"\$modfile\""
+  echo "done"
+} >>sign_virtualBox.sh
 chmod 700 sign_virtualBox.sh
 ./sign_virtualBox.sh
