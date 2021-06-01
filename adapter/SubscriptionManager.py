@@ -26,7 +26,8 @@ class SubscriptionManager:
             for r in repository:
                 self.repos_enable(r)
 
-    def register(self, username, password):
+    @staticmethod
+    def register(username, password):
         """
         Registra a instalação do Red Hat Enterprise Linux com a conta da Red Hat.
         :param username: Nome de usuário da conta da Red Hat.
