@@ -145,7 +145,6 @@ def configurar_java():
              "GenericName=Java\n", "Keywords=java\n", "Exec=java -jar %f\n", "Terminal=false\n",
              "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
              "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
-        arquivo_atalho.close()
 
     shell.executar("sudo chmod 777 ./java.desktop")
     shell.executar("sudo cp --force ./java.desktop /usr/share/applications/java.desktop")
@@ -158,7 +157,6 @@ def configurar_java():
              "GenericName=Java8\n", "Keywords=java8\n", "Exec=java8 -jar %f\n", "Terminal=false\n",
              "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
              "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
-        arquivo_atalho.close()
 
     shell.executar("sudo chmod 777 ./java8.desktop")
     shell.executar("sudo cp --force ./java8.desktop /usr/share/applications/java8.desktop")

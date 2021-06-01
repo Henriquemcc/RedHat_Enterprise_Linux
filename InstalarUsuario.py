@@ -57,7 +57,6 @@ def configurar_diretorio_home_bin():
         if not any(export_bin_string in linha for linha in linhas):
             arquivo.seek(0, io.SEEK_END)
             arquivo.write("{}\n".format(export_bin_string))
-        arquivo.close()
 
 
 def configurar_adb():
