@@ -2,7 +2,7 @@ from boundary import MyIO
 from controller.ControladorDeCredenciais import ControladorDeCredenciais
 from model.Credencial import Credencial
 
-__controlador_credenciais = ControladorDeCredenciais("../Credenciais.bin")
+__controlador_credenciais = ControladorDeCredenciais()
 
 
 def __main():

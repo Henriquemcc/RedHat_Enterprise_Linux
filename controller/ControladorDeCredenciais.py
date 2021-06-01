@@ -3,13 +3,15 @@ import pickle
 
 from model.Credencial import Credencial
 
+nome_padrao_arquivo_credenciais = "Credenciais.bin"
+
 
 class ControladorDeCredenciais:
     """
     Classe que controla as credenciais durante a instalação.
     """
 
-    def __init__(self, nome_arquivo_credenciais):
+    def __init__(self, nome_arquivo_credenciais=nome_padrao_arquivo_credenciais):
         """
         Método construtor.
         :param nome_arquivo_credenciais: Nome do arquivo de credenciais.

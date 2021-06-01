@@ -13,7 +13,7 @@ from adapter.Snap import Snap
 from adapter.SubscriptionManager import SubscriptionManager
 from controller.ControladorDeCredenciais import ControladorDeCredenciais
 
-__controlador_credenciais = ControladorDeCredenciais("Credenciais.bin")
+__controlador_credenciais = ControladorDeCredenciais()
 subscription_manager = SubscriptionManager()
 gerenciador_dnf = Dnf()
 gerenciador_snap = Snap()
