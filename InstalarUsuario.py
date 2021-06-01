@@ -43,6 +43,9 @@ def configurar_gnome():
     # Desabilitar autorun
     shell.executar("gsettings set org.gnome.desktop.media-handling autorun-never true")
 
+    # Habilitar o fractional scaling
+    shell.executar("gsettings set org.gnome.mutter experimental-features \"['scale-monitor-framebuffer']\"")
+
 
 def configurar_diretorio_home_bin():
     """
