@@ -78,7 +78,7 @@ def instalar_pacotes_dnf():
             "hplip",
 
             # Driver da placa de som
-            "alsa-firmware",
+            "alsa-firmware", "pipewire", "pipewire-pulseaudio",
 
             # KVM
             "qemu-kvm", "libvirt",
