@@ -228,7 +228,7 @@ def main():
     configurar_java()
     configurar_virtualbox()
     configurar_script_de_atualizacao()
-    configurar_grub()
+    #configurar_grub()
 
 
 if __name__ == '__main__':
