@@ -77,6 +77,9 @@ def instalar_pacotes_dnf():
             # Impressora HP
             "hplip",
 
+            # Driver da placa de som
+            "alsa-firmware",
+
             # KVM
             "qemu-kvm", "libvirt",
 
@@ -209,6 +212,7 @@ def configurar_grub():
             arquivo.write("{}\n".format(grub_savedefault_true_param))
 
     shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
+    # shell.executar("sudo grub2-set-default saved")
     shell.executar("sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg")
 
 
