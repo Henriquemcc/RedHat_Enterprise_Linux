@@ -20,5 +20,5 @@ cd /usr/bin || exit 1
   echo "/usr/src/kernels/\"\$(uname -r)\"/scripts/sign-file sha256 /root/signed-modules/MOK.priv /root/signed-modules/MOK.der \"\$modfile\""
   echo "done"
 } >>sign_virtualBox.sh
-chmod 700 sign_virtualBox.sh
-./sign_virtualBox.sh
+chmod 777 sign_virtualBox.sh
+sign_virtualBox.sh
