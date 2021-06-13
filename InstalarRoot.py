@@ -80,6 +80,9 @@ def instalar_pacotes_dnf():
             # Driver da placa de som
             "alsa-firmware", "pipewire", "pipewire-pulseaudio",
 
+            # Suporte a arquivos 7zip
+            "p7zip-plugins", "p7zip",
+
             # KVM
             "qemu-kvm", "libvirt",
 
