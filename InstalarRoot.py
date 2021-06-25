@@ -69,6 +69,7 @@ def instalar_pacotes_dnf():
                 "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true"
                 "&linuxArchiveType=rpm").url,
             "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
+            "https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm",
 
             # Libreoffice
             "libreoffice-writer", "libreoffice-calc", "libreoffice-impress", "libreoffice-math", "libreoffice-draw",
@@ -95,7 +96,8 @@ def instalar_pacotes_dnf():
 
             # Outros programas
             "stacer", "qt5-qtcharts", "vlc", "qt5-qtsvg", "youtube-dl.noarch", "snapd", "flatpak", "transmission",
-            "ffmpeg", "steam.i686", "VirtualBox", "mokutil", "fdupes", "dnf-automatic", "gnome-tweaks", "dconf-editor"
+            "ffmpeg", "steam.i686", "VirtualBox", "mokutil", "fdupes", "dnf-automatic", "gnome-tweaks", "dconf-editor",
+            "cloudflare-warp"
         ]
     )
 
