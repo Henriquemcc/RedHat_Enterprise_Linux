@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Java Runtime Environment 8
+Comment=Java Runtime Environment 8
+GenericName=Java8
+Keywords=java8
+Exec=java8 -jar %f
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+MimeType=application/x-java-archive
+StartupNotify=true
+Icon=java-1.8.0-openjdk

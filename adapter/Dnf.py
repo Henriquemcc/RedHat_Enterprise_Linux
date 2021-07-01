@@ -25,6 +25,17 @@ class Dnf:
             for p in pacote:
                 self.install(p)
 
+    def remove(self, pacote):
+        """
+        Remove pacote(s) do gerenciador de pacotes DNF
+        :param pacote: Pacote(s) a ser(em) removido(s).
+        """
+        if type(pacote) is str:
+            self.__shell.executar("sudo dnf --assumeyes autoremove {}".format(pacote))
+        elif type(pacote) is list:
+            for p in pacote:
+                self.remove(p)
+
     def upgrade(self):
         """
         Atualiza pacote(s) do gerenciador de pacotes DNF.

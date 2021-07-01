@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Java Runtime Environment
+Comment=Java Runtime Environment
+GenericName=Java
+Keywords=java
+Exec=java -jar %f
+Terminal=false
+X-MultipleArgs=false
+Type=Application
+MimeType=application/x-java-archive
+StartupNotify=true
+Icon=java-1.8.0-openjdk

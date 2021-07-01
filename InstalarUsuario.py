@@ -2,20 +2,10 @@ import io
 import os
 from os.path import expanduser
 
-from adapter.Pip import Pip
 from adapter.Shell import Shell, AcaoQuandoOcorrerErro
 from adapter.VisualStudioCode import VisualStudioCode
 
-gerenciador_pip = Pip()
 gerenciador_visual_studio_code = VisualStudioCode()
-
-
-def instalar_pacotes_pip():
-    """
-    Instala o gerenciador de pacotes Pip e os pacotes Pip.
-    """
-    Pip.instalar_pip()
-    gerenciador_pip.install("protonvpn-cli")
 
 
 def configurar_gnome():
@@ -158,7 +148,6 @@ def main():
     """
     Método principal.
     """
-    instalar_pacotes_pip()
     configurar_adb()
     configurar_gnome()
     instalar_extensoes_visual_studio_code()

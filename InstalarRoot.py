@@ -1,4 +1,3 @@
-import io
 import os
 import shutil
 import sys
@@ -8,6 +7,7 @@ import requests
 from adapter import Wifi
 from adapter.Dnf import Dnf
 from adapter.Flatpak import Flatpak
+from adapter.Pip import Pip
 from adapter.Shell import Shell, AcaoQuandoOcorrerErro
 from adapter.Snap import Snap
 from adapter.SubscriptionManager import SubscriptionManager
@@ -18,6 +18,8 @@ subscription_manager = SubscriptionManager()
 gerenciador_dnf = Dnf()
 gerenciador_snap = Snap()
 gerenciador_flatpak = Flatpak()
+gerenciador_pip = Pip()
+diretorio_atual = os.getcwd()
 
 
 def conectar_na_rede_wifi():
@@ -39,10 +41,12 @@ def registrar_red_hat():
         __controlador_credenciais.credencial_conta_red_hat.senha)
 
 
-def instalar_pacotes_dnf():
+def configurar_pacotes_dnf():
     """
-    Adiciona repositórios, atualiza e instala os pacotes DNF.
+    Adiciona repositórios, atualiza e instala os pacotes DNF e remove pacotes inúteis.
     """
+
+    # Adicionando repositórios
     subscription_manager.habilitar_codeready_builder()
     subscription_manager.habilitar_baseos_rpms()
     subscription_manager.habilitar_appstream_rpms()
@@ -54,6 +58,15 @@ def instalar_pacotes_dnf():
             "https://cli.github.com/packages/rpm/gh-cli.repo"
         ]
     )
+
+    # Removendo pacotes
+    gerenciador_dnf.remove(
+        [
+            "openssh-server", "cockpit"
+        ]
+    )
+
+    # Atualizando pacotes
     gerenciador_dnf.upgrade()
 
     # Driver da Nvidia
@@ -64,11 +77,10 @@ def instalar_pacotes_dnf():
 
             # Programas externos
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
-            "https://github.com/peazip/PeaZip/releases/download/7.7.1/peazip-7.7.1.LINUX.GTK2-1.x86_64.rpm",
+            "https://github.com/peazip/PeaZip/releases/download/8.0.0/peazip-8.0.0.LINUX.GTK2-1.x86_64.rpm",
             requests.get(
                 "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true"
                 "&linuxArchiveType=rpm").url,
-            "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm",
             "https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm",
 
             # Libreoffice
@@ -115,9 +127,7 @@ def instalar_pacotes_snap():
         "pycharm-community --classic",
         "flutter --classic",
         "kotlin --classic",
-        "skype --classic",
-        "clion --classic",
-        "rider --classic"
+        "skype --classic"
     ])
 
 
@@ -132,93 +142,72 @@ def instalar_pacotes_flatpak():
         [
             "https://dl.flathub.org/repo/appstream/com.google.AndroidStudio.flatpakref",
             "https://dl.flathub.org/repo/appstream/com.discordapp.Discord.flatpakref",
-            "https://dl.flathub.org/repo/appstream/org.audacityteam.Audacity.flatpakref"
+            "https://dl.flathub.org/repo/appstream/org.audacityteam.Audacity.flatpakref",
+            "https://dl.flathub.org/repo/appstream/org.signal.Signal.flatpakref"
         ]
     )
+
+
+def instalar_pacotes_pip():
+    """
+    Instala o gerenciador de pacotes Pip e os pacotes Pip.
+    """
+    Pip.instalar_pip()
+    gerenciador_pip.install("protonvpn-cli")
 
 
 def configurar_java():
     """
     Configura o compilador e á máquina virtual Java.
     """
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
 
-    # Criando comando java8 e javac8
-    shell.executar("sudo ln -s /usr/lib/jvm/java-1.8.0/bin/java /bin/java8")
-    shell.executar("sudo ln -s /usr/lib/jvm/java-1.8.0/bin/javac /bin/javac8")
+    # Criando o comando java8
+    origem = os.path.join("/usr", "lib", "jvm", "java-1.8.0", "bin", "java")
+    destino = os.path.join("/bin", "java8")
+    try:
+        os.symlink(origem, destino)
+    except Exception as e:
+        print(e)
 
-    with open("java.desktop", "w") as arquivo_atalho:
-        arquivo_atalho.writelines(
-            ["[Desktop Entry]\n", "Name=Java Runtime Environment\n", "Comment=Java Runtime Environment\n",
-             "GenericName=Java\n", "Keywords=java\n", "Exec=java -jar %f\n", "Terminal=false\n",
-             "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
-             "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
+    # Criando o comando javac8
+    origem = os.path.join("/usr", "lib", "jvm", "java-1.8.0", "bin", "javac")
+    destino = os.path.join("/bin", "javac8")
+    try:
+        os.symlink(origem, destino)
+    except Exception as e:
+        print(e)
 
-    shell.executar("sudo chmod 777 ./java.desktop")
-    shell.executar("sudo cp --force ./java.desktop /usr/share/applications/java.desktop")
-    shell.executar("sudo chmod 777 /usr/share/applications/java.desktop")
-    shell.executar("gio trash ./java.desktop")
+    # Copiando o arquivo java.desktop
+    origem = os.path.join(diretorio_atual, "Shortcuts", "java.desktop")
+    destino = os.path.join("/usr", "share", "applications", "java.desktop")
+    try:
+        shutil.copy(origem, destino)
+        os.chmod(destino, 0o0777)
+    except Exception as e:
+        print(e)
 
-    with open("java8.desktop", "w") as arquivo_atalho:
-        arquivo_atalho.writelines(
-            ["[Desktop Entry]\n", "Name=Java Runtime Environment 8\n", "Comment=Java Runtime Environment 8\n",
-             "GenericName=Java8\n", "Keywords=java8\n", "Exec=java8 -jar %f\n", "Terminal=false\n",
-             "X-MultipleArgs=false\n", "Type=Application\n", "MimeType=application/x-java-archive\n",
-             "StartupNotify=true\n", "Icon=java-1.8.0-openjdk\n"])
-
-    shell.executar("sudo chmod 777 ./java8.desktop")
-    shell.executar("sudo cp --force ./java8.desktop /usr/share/applications/java8.desktop")
-    shell.executar("sudo chmod 777 /usr/share/applications/java8.desktop")
-    shell.executar("gio trash ./java8.desktop")
-
-
-def configurar_virtualbox():
-    """
-    Configura o VirtualBox.
-    """
-    gerenciador_dnf.install("mokutil")
-
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar("sudo bash ./Scripts/SignVirtualboxModules.sh")
+    # Copiando o arquivo java8.desktop
+    origem = os.path.join(diretorio_atual, "Shortcuts", "java8.desktop")
+    destino = os.path.join("/usr", "share", "applications", "java8.desktop")
+    try:
+        shutil.copy(origem, destino)
+        os.chmod(destino, 0o0777)
+    except Exception as e:
+        print(e)
 
 
 def configurar_script_de_atualizacao():
     """
     Configura o script de atualização de pacotes do sistema.
     """
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    shell.executar("sudo cp ./Scripts/Update.sh /usr/bin/update")
 
-
-def configurar_grub():
-    """
-    Configura o Grub
-    """
-
-    caminho_absoluto_configuracao_grub = "/etc/default/grub"
-    caminho_absoluto_configuracao_grub_backup = "/etc/default/grub.old"
-
+    origem = os.path.join(diretorio_atual, "Scripts", "Update.sh")
+    destino = os.path.join("/usr", "bin", "update")
     try:
-        shutil.copy(caminho_absoluto_configuracao_grub, caminho_absoluto_configuracao_grub_backup)
+        shutil.copy(origem, destino)
+        os.chmod(destino, 0o0777)
     except Exception as e:
         print(e)
-        return
-
-    grub_default_saved_param = "GRUB_DEFAULT=saved"
-    grub_savedefault_true_param = "GRUB_SAVEDEFAULT=true"
-
-    with open(caminho_absoluto_configuracao_grub, "r+") as arquivo:
-        linhas = arquivo.readlines()
-        if not any(grub_default_saved_param in linha for linha in linhas):
-            arquivo.seek(0, io.SEEK_END)
-            arquivo.write("{}\n".format(grub_default_saved_param))
-        if not any(grub_savedefault_true_param in linha for linha in linhas):
-            arquivo.seek(0, io.SEEK_END)
-            arquivo.write("{}\n".format(grub_savedefault_true_param))
-
-    shell = Shell(AcaoQuandoOcorrerErro.REPETIR_E_IGNORAR, 10)
-    # shell.executar("sudo grub2-set-default saved")
-    shell.executar("sudo grub2-mkconfig -o /boot/efi/EFI/redhat/grub.cfg")
 
 
 def main():
@@ -227,13 +216,12 @@ def main():
     """
     conectar_na_rede_wifi()
     registrar_red_hat()
-    instalar_pacotes_dnf()
+    configurar_pacotes_dnf()
     instalar_pacotes_snap()
     instalar_pacotes_flatpak()
+    instalar_pacotes_pip()
     configurar_java()
-    configurar_virtualbox()
     configurar_script_de_atualizacao()
-    #configurar_grub()
 
 
 if __name__ == '__main__':

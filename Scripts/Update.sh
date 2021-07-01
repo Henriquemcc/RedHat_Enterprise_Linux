@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sudo dnf update --refresh
+sudo dnf --assumeyes update --refresh
 sudo snap refresh
 sudo flatpak update
