@@ -60,11 +60,7 @@ def configurar_pacotes_dnf():
     )
 
     # Removendo pacotes
-    gerenciador_dnf.remove(
-        [
-            "openssh-server", "cockpit"
-        ]
-    )
+    gerenciador_dnf.remove("openssh-server")
 
     # Atualizando pacotes
     gerenciador_dnf.upgrade()
@@ -210,6 +206,63 @@ def configurar_script_de_atualizacao():
         print(e)
 
 
+def configurar_virtualbox():
+    """
+    Configura módulos do kernel para o VirtualBox
+    """
+
+    # Instalando prerrequisitos
+    gerenciador_dnf.install(["akmod-VirtualBox", "kernel-devel", "VirtualBox-kmodsrc.noarch", "kmod-VirtualBox.x86_64"])
+
+    # Criando o diretório signed-modules
+    diretorio_signed_modules = os.path.join("/root", "signed-modules")
+    try:
+        os.makedirs(diretorio_signed_modules)
+    except Exception as e:
+        print(e)
+
+    # Gerando os arquivos MOK.priv e MOK.der
+    shell = Shell(AcaoQuandoOcorrerErro.IGNORAR)
+    arquivo_mok_priv = os.path.join(diretorio_signed_modules, "MOK.priv")
+    arquivo_mok_der = os.path.join(diretorio_signed_modules, "MOK.der")
+    shell.executar(
+        "sudo openssl req -new -x509 -newkey rsa:2048 -keyout {} -outform DER -out {} -nodes -days 36500 -subj \"/CN=VirtualBox/\"".format(
+            arquivo_mok_priv, arquivo_mok_der))
+    try:
+        os.chmod(arquivo_mok_priv, 0o0600)
+    except Exception as e:
+        print(e)
+
+    # Executando o mokutil para importar o arquivo MOK.der
+    shell.executar("sudo mokutil --import {}".format(arquivo_mok_der))
+
+    # Copiando o arquivo SignVirtualBox.sh
+    origem = os.path.join(diretorio_atual, "Scripts", "SignVirtualBox.sh")
+    destino = os.path.join("/root", "signed-modules", "SignVirtualBox.sh")
+    try:
+        shutil.copy(origem, destino)
+        os.chmod(destino, 0o0755)
+    except Exception as e:
+        print(e)
+
+    # Criando o link
+    link = os.path.join("/bin", "SignVirtualBox")
+    try:
+        os.symlink(destino, link)
+        os.chmod(link, 0o0755)
+    except Exception as e:
+        print(e)
+
+
+def configurar_firewall():
+    """
+    Configura o firewall.
+    :return:
+    """
+    shell = Shell(AcaoQuandoOcorrerErro.IGNORAR)
+    shell.executar("sudo firewall-cmd --remove-service=cockpit --permanent")
+
+
 def main():
     """
     Método principal.
@@ -222,6 +275,8 @@ def main():
     instalar_pacotes_pip()
     configurar_java()
     configurar_script_de_atualizacao()
+    configurar_virtualbox()
+    configurar_firewall()
 
 
 if __name__ == '__main__':
