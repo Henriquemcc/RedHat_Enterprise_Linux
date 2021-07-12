@@ -98,6 +98,10 @@ def configurar_pacotes_dnf():
             # Sistemas de arquivos não nativos do linux
             "ntfs-3g", "exfat-utils", "fuse", "fuse-exfat",
 
+            # Extensões do Gnome shell
+            "gnome-shell-extension-updates-dialog", "gnome-shell-extension-dash-to-dock",
+            "gnome-shell-extension-window-grouper",
+
             # Ferramentas de desenvolvimento
             "java-latest-openjdk-devel", "java-1.8.0-openjdk-devel", "golang", "gcc", "dotnet-sdk-5.0",
             "aspnetcore-runtime-5.0", "dotnet-runtime-5.0", "git", "git-lfs", "gh",
