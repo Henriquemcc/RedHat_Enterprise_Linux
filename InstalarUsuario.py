@@ -58,7 +58,7 @@ def configurar_adb():
     """
     configurar_diretorio_home_bin()
     diretorio_home = expanduser("~")
-    path_adb = "{}/Android/Sdk/platform-tools/adb".format(diretorio_home)
+    path_adb = "{}/Android/Sdk/platform-Tools/adb".format(diretorio_home)
     path_pasta_atalho = "{}/bin".format(diretorio_home)
     path_atalho = "{}/adb".format(path_pasta_atalho)
 
@@ -83,7 +83,7 @@ def instalar_extensoes_visual_studio_code():
 
             # Linguagem C/C++
             "ms-vscode.cpptools",
-            "ms-vscode.cmake-tools",
+            "ms-vscode.cmake-Tools",
             "austin.code-gnu-global",
 
             # Linguagem C#
@@ -144,6 +144,33 @@ def instalar_rust_lang():
     shell.executar("source $HOME/.cargo/env")
 
 
+def configurar_diretorio_ponto_ssh():
+    """
+    Configura o diretório .ssh da minha pasta de usuário com as permissões adequadas.
+    """
+
+    # Obtendo o diretório home do meu usuário
+    caminho_diretorio_home = os.path.expanduser("~")
+
+    # Obtendo o caminho do diretório .ssh
+    caminho_diretorio_ponto_ssh = os.path.join(caminho_diretorio_home, ".ssh")
+
+    # Mudando as permissões do diretório .ssh
+    os.chmod(caminho_diretorio_ponto_ssh, 0o0700)
+
+    # Obtendo o caminho das chaves autorizadas
+    caminho_chaves_autorizadas = os.path.join(caminho_diretorio_ponto_ssh, "authorized_keys")
+
+    # Mudando as permissões das chaves autorizadas
+    os.chmod(caminho_chaves_autorizadas, 0o0600)
+
+    # Obtendo o caminho da minha chave privada id_rsa
+    caminho_chave_privada = os.path.join(caminho_diretorio_ponto_ssh, "id_rsa")
+
+    # Mudando as permissões da minha chave privada
+    os.chmod(caminho_chave_privada, 0o0600)
+
+
 def main():
     """
     Método principal.
@@ -152,6 +179,7 @@ def main():
     configurar_gnome()
     instalar_extensoes_visual_studio_code()
     instalar_rust_lang()
+    configurar_diretorio_ponto_ssh()
 
 
 if __name__ == '__main__':
