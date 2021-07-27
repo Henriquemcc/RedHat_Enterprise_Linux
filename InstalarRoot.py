@@ -4,6 +4,7 @@ import sys
 
 import requests
 
+import Tools.Backup
 from adapter import Wifi
 from adapter.Dnf import Dnf
 from adapter.Flatpak import Flatpak
@@ -59,9 +60,6 @@ def configurar_pacotes_dnf():
         ]
     )
 
-    # Removendo pacotes
-    gerenciador_dnf.remove("openssh-server")
-
     # Atualizando pacotes
     gerenciador_dnf.upgrade()
 
@@ -108,7 +106,10 @@ def configurar_pacotes_dnf():
             # Outros programas
             "stacer", "qt5-qtcharts", "vlc", "qt5-qtsvg", "youtube-dl.noarch", "snapd", "flatpak", "transmission",
             "ffmpeg", "steam.i686", "VirtualBox", "mokutil", "fdupes", "dnf-automatic", "gnome-tweaks", "dconf-editor",
-            "cloudflare-warp"
+            "cloudflare-warp",
+
+            # Reportar erro automaticamente
+            "abrt-desktop", "abrt-java-connector",
         ]
     )
 
@@ -159,6 +160,9 @@ def configurar_java():
     """
     Configura o compilador e á máquina virtual Java.
     """
+
+    # Instalando o Java
+    gerenciador_dnf.install(["java-latest-openjdk-devel", "java-1.8.0-openjdk-devel"])
 
     # Criando o comando java8
     origem = os.path.join("/usr", "lib", "jvm", "java-1.8.0", "bin", "java")
@@ -215,7 +219,7 @@ def configurar_virtualbox():
     """
 
     # Instalando prerrequisitos
-    gerenciador_dnf.install(["akmod-VirtualBox", "kernel-devel", "VirtualBox-kmodsrc.noarch", "kmod-VirtualBox.x86_64"])
+    gerenciador_dnf.install(["VirtualBox", "mokutil", "akmod-VirtualBox", "kernel-devel", "VirtualBox-kmodsrc.noarch", "kmod-VirtualBox.x86_64"])
 
     # Criando o diretório signed-modules
     diretorio_signed_modules = os.path.join("/root", "signed-modules")
@@ -260,10 +264,64 @@ def configurar_virtualbox():
 def configurar_firewall():
     """
     Configura o firewall.
-    :return:
     """
+
+    # Instalando o Firewall
+    gerenciador_dnf.install("firewalld")
+
+    # Bloqueando o acesso externo ao cockpit
     shell = Shell(AcaoQuandoOcorrerErro.IGNORAR)
     shell.executar("sudo firewall-cmd --remove-service=cockpit --permanent")
+
+
+def configurar_open_ssh_server():
+    """
+    Configura o Open SSH Server
+    """
+
+    # Instalando o Open SSH Server
+    gerenciador_dnf.install("openssh-server")
+
+    # Fazendo o backup do arquivo de configuração do servidor open ssh.
+    Tools.Backup.backup_file(os.path.join("/etc", "ssh"), "sshd_config")
+
+    # Alternado o arquivo de configuração do servidor open ssh.
+    linhas_arquivo = []
+    pub_key_authentication_yes_str = False
+    password_authentication_no_str = False
+    with open(os.path.join("/etc", "ssh", "sshd_config"), "r+") as sshd_config:
+        linhas_arquivo = sshd_config.readlines()
+
+        index = 0
+        while index < len(linhas_arquivo):
+            if linhas_arquivo[index] == "#PubkeyAuthentication yes":
+                linhas_arquivo[index] = "PubkeyAuthentication yes"
+                pub_key_authentication_yes_str = True
+                break
+            index += 1
+
+        index = 0
+        while index < len(linhas_arquivo):
+            if linhas_arquivo[index] == "PasswordAuthentication yes":
+                linhas_arquivo[index] = "PasswordAuthentication no"
+                password_authentication_no_str = True
+                break
+            index += 1
+
+    if pub_key_authentication_yes_str and password_authentication_no_str:
+        with open(os.path.join("/etc", "ssh", "sshd_config"), "w") as sshd_config:
+            for linha in linhas_arquivo:
+                sshd_config.write("{}\n".format(linha))
+
+
+def configurar_automatic_bug_reporting_tool():
+    """
+    Configura o Automatic Bug Reporting Tool
+    """
+    gerenciador_dnf.install(["abrt-desktop", "abrt-java-connector"])
+    shell = Shell(AcaoQuandoOcorrerErro.IGNORAR)
+    shell.executar("sudo systemctl enable abrtd.service")
+    shell.executar("sudo systemctl start abrtd.service")
 
 
 def main():
@@ -280,6 +338,7 @@ def main():
     configurar_script_de_atualizacao()
     configurar_virtualbox()
     configurar_firewall()
+    configurar_automatic_bug_reporting_tool()
 
 
 if __name__ == '__main__':
