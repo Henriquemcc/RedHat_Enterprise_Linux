@@ -4,7 +4,7 @@ import shutil
 import Tools.String
 
 
-def __get_dot_old_file_name(nome_arquivo: str) -> str:
+def get_dot_old_file_name(nome_arquivo: str) -> str:
     """
     Obtém o nome do arquivo de backup evitando sobrescrever algum arquivo existente
     :param nome_arquivo: Nome do arquivo original.
@@ -37,7 +37,7 @@ def get_new_backup_file_name(caminho_pasta_pai: str, nome_arquivo: str) -> str:
     :return: Novo nome de arquivo
     """
     while os.path.isfile(os.path.join(caminho_pasta_pai, nome_arquivo)):
-        nome_arquivo = __get_dot_old_file_name(nome_arquivo)
+        nome_arquivo = get_dot_old_file_name(nome_arquivo)
 
     return nome_arquivo
 
