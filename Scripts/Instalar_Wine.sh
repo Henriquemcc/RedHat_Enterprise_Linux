@@ -34,6 +34,7 @@ function compilar_e_instalar_wine_x86_32() {
 
 function instalar_winetricks() {
   sudo wget "https://raw.githubusercontent.com/Winetricks/winetricks/master/src/winetricks" -O "/bin/winetricks"
+  sudo chmod 744 "/bin/winetricks"
 }
 
 function instalar_recursos_adicionais() {
