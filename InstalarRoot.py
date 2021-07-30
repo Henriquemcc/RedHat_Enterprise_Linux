@@ -70,11 +70,21 @@ def configurar_pacotes_dnf():
         [
 
             # Programas externos
+            #   PowerShell 7.1.3
+            "https://github.com/PowerShell/PowerShell/releases/download/v7.1.3/powershell-7.1.3-1.centos.8.x86_64.rpm",
+
+            #   Google Chrome
             "https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm",
+
+            #   Peazip 8.0.0
             "https://github.com/peazip/PeaZip/releases/download/8.0.0/peazip-8.0.0.LINUX.GTK2-1.x86_64.rpm",
+
+            #   Microsoft Teams
             requests.get(
                 "https://teams.microsoft.com/downloads/desktopurl?env=production&plat=linux&arch=x64&download=true"
                 "&linuxArchiveType=rpm").url,
+
+            #   CloudFlare DNS CLient
             "https://pkg.cloudflareclient.com/cloudflare-release-el8.rpm",
 
             # Libreoffice
