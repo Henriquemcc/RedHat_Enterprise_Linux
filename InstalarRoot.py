@@ -114,7 +114,7 @@ def configurar_pacotes_dnf():
 
             # Ferramentas de desenvolvimento
             "java-latest-openjdk-devel", "java-1.8.0-openjdk-devel", "golang", "gcc", "dotnet-sdk-5.0",
-            "aspnetcore-runtime-5.0", "dotnet-runtime-5.0", "git", "git-lfs", "gh",
+            "aspnetcore-runtime-5.0", "dotnet-runtime-5.0", "git", "git-lfs", "gh", "R",
 
             # Outros programas
             "stacer", "qt5-qtcharts", "vlc", "qt5-qtsvg", "youtube-dl.noarch", "snapd", "flatpak", "transmission",
