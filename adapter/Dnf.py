@@ -20,7 +20,7 @@ class Dnf:
         :param pacote: Pacote(s) a ser(em) instalado(s).
         """
         if type(pacote) is str:
-            self.__shell.executar("sudo dnf --assumeyes install {}".format(pacote))
+            self.__shell.executar("sudo dnf --assumeyes --skip-broken install {}".format(pacote))
         elif type(pacote) is list:
             for p in pacote:
                 self.install(p)
