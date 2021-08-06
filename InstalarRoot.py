@@ -90,6 +90,9 @@ def configurar_pacotes_dnf():
             # R Studio
             "https://download1.rstudio.org/desktop/centos8/x86_64/rstudio-1.4.1717-x86_64.rpm",
 
+            # Impressora HP
+            "https://developers.hp.com/sites/default/files/hplip-3.21.6-RHEL8-x86_64.rpm",
+
             # Libreoffice
             "libreoffice-writer", "libreoffice-calc", "libreoffice-impress", "libreoffice-math", "libreoffice-draw",
             "libreoffice-langpack-pt-BR", "libreoffice-langpack-en", "unoconv",
