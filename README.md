@@ -1,10 +1,16 @@
 [English Version](README.EN.md)
 
-# Workstation com Red Hat Enterprise Linux
+# [Depreciado] Workstation com Red Hat Enterprise Linux
 
 Este é o script de instalação dos meus programas em minha máquina com Red Hat Enterprise Linux.
 
-# Como Executar
+## Nota de depreciação
+
+Os scripts de instalação do Fedora, CentoOS, RedHat e AlmaLinux foram unificados em um único repositório: [Fedora](https://github.com/Henriquemcc/Fedora).
+
+Por essa razão, o código-fonte deste repositório foi depreciado.
+
+## Como Executar
 
 1. Clone este repositório Git
 
@@ -12,6 +18,6 @@ Este é o script de instalação dos meus programas em minha máquina com Red Ha
 
 3. Execute o arquivo 'Instalar.sh'
 
-# Licença
+## Licença
 
 O script está licenciado sobre [European Union Public License 1.2](LICENSE).
