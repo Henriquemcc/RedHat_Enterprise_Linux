@@ -1,10 +1,16 @@
 [Versão em Português](README.md)
 
-# Workstation
+# [Deprecated] Workstation
 
 This is the installation script for my programs on my Red Hat Enterprise Linux machine.
 
-# How to run
+## Deprecation notice
+
+The installation scripts for Fedora, CentOs, RedHat and AlmaLinux were unified in a single repository: [Fedora](https://github.com/Henriquemcc/Fedora).
+
+For that reason the source code of this repository was deprecated.
+
+## How to run
 
 1. Clone this Git repository
 
@@ -12,6 +18,6 @@ This is the installation script for my programs on my Red Hat Enterprise Linux m
 
 3. Run 'Instalar.sh' file
 
-# License
+## License
 
 The script is licensed under [European Union Public License 1.2](LICENSE).
